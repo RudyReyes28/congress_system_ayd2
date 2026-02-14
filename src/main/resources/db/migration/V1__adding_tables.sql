@@ -1,5 +1,5 @@
 -- ============================================
--- AUTHENTICATION & USERS
+-- AUTHENTICATION AND USERS
 -- ============================================
 
 CREATE TABLE person (
@@ -108,7 +108,7 @@ CREATE TABLE scientific_committee (
 );
 
 -- ============================================
--- ROOMS & ACTIVITIES
+-- ROOMS AND ACTIVITIES
 -- ============================================
 
 CREATE TABLE room (
@@ -208,7 +208,7 @@ CREATE TABLE submission_evaluation (
 );
 
 -- ============================================
--- REGISTRATIONS & PAYMENTS
+-- REGISTRATIONS AND PAYMENTS
 -- ============================================
 
 CREATE TABLE registration (
