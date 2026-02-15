@@ -39,5 +39,5 @@ public class CertificateEntity {
 
     @Column(name = "generated_at")
     private Timestamp generatedAt;
-    
+
 }
