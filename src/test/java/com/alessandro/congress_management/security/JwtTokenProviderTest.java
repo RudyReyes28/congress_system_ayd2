@@ -20,7 +20,7 @@ public class JwtTokenProviderTest {
     @Test
     void testGenerateToken() {
         // Act
-        String token = jwtTokenProvider.generateToken(TEST_USERNAME);
+        String token = jwtTokenProvider.generateToken(TEST_USERNAME, 1L);
 
         // Assert
         assertNotNull(token);
@@ -30,7 +30,7 @@ public class JwtTokenProviderTest {
     @Test
     void testGetUsernameFromToken() {
         // Arrange
-        String token = jwtTokenProvider.generateToken(TEST_USERNAME);
+        String token = jwtTokenProvider.generateToken(TEST_USERNAME, 1L);
 
         // Act
         String username = jwtTokenProvider.getUsernameFromToken(token);
@@ -42,7 +42,7 @@ public class JwtTokenProviderTest {
     @Test
     void testValidateToken_whenValid() {
         // Arrange
-        String token = jwtTokenProvider.generateToken(TEST_USERNAME);
+        String token = jwtTokenProvider.generateToken(TEST_USERNAME, 1L);
 
         // Act
         boolean isValid = jwtTokenProvider.validateToken(token);
