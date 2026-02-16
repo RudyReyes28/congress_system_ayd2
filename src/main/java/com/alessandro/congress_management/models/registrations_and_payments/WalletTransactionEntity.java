@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity(name = "WalletTransaction")
@@ -26,7 +27,7 @@ public class WalletTransactionEntity {
     private String transactionType;
 
     @Column(name = "amount", nullable = false)
-    private Double amount;
+    private BigDecimal amount;
 
     @Column(name = "description", length = 500)
     private String description;

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity(name = "Registration")
@@ -27,7 +28,7 @@ public class RegistrationEntity {
     private UserEntity user;
 
     @Column(name = "amount_paid", nullable = false)
-    private Double amountPaid;
+    private BigDecimal amountPaid;
 
     @Column(name = "registration_date", nullable = false)
     private Timestamp registrationDate;

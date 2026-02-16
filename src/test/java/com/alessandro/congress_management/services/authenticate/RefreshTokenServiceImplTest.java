@@ -5,6 +5,7 @@ import com.alessandro.congress_management.models.authentication_and_users.Person
 import com.alessandro.congress_management.models.authentication_and_users.RefreshTokenEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
 import com.alessandro.congress_management.repositories.authenticate.RefreshTokenRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -27,8 +28,13 @@ public class RefreshTokenServiceImplTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
-    @InjectMocks
     private RefreshTokenServiceImpl refreshTokenService;
+
+    @BeforeEach
+    void setUp() {
+        refreshTokenService =
+                new RefreshTokenServiceImpl(refreshTokenRepository, TEST_REFRESH_EXPIRATION_MS);
+    }
 
     @Test
     void testCreateRefreshToken() {

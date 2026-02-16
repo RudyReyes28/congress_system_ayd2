@@ -12,7 +12,7 @@ public class ActivityTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_activity_type")
-    private Long idActivityType;
+    private Integer idActivityType;
 
     @Column(name = "type_name", nullable = false, unique = true)
     private String typeName;

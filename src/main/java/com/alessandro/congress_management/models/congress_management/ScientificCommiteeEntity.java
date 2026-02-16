@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 
 @Entity(name = "ScientificCommitee")
-@Table(name = "scientific_commitee")
+@Table(name = "scientific_committee")
 @Data
 @NoArgsConstructor
 public class ScientificCommiteeEntity {

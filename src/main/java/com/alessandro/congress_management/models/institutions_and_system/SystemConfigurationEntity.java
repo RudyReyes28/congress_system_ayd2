@@ -14,7 +14,7 @@ public class SystemConfigurationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_config")
-    private Long idConfig;
+    private Integer idConfig;
 
     @Column(name = "config_key")
     private String configKey;
