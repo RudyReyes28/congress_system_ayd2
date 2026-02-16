@@ -26,5 +26,5 @@ public class UserRoleEntity {
     private RoleEntity role;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -29,5 +29,5 @@ public class RefreshTokenEntity {
     private LocalDateTime expiryDate;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
