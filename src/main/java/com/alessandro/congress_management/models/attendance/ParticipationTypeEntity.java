@@ -12,7 +12,7 @@ public class ParticipationTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_participation_type")
-    private Long idParticipationType;
+    private Integer idParticipationType;
 
     @Column(name = "type_name", nullable = false, unique = true)
     private String typeName;

@@ -2,17 +2,13 @@
 -- AUTHENTICATION AND USERS
 -- ============================================
 
-CREATE TABLE person (
-    id_person INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE user (
+    id_user BIGINT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     full_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     organization VARCHAR(255) NOT NULL,
-    photo_url VARCHAR(500)
-);
-
-CREATE TABLE user (
-    id_user BIGINT AUTO_INCREMENT PRIMARY KEY,
+    photo_url VARCHAR(500),
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     identification_number VARCHAR(50) NOT NULL UNIQUE,

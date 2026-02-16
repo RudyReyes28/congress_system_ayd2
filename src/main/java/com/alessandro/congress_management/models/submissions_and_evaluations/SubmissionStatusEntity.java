@@ -12,7 +12,7 @@ public class SubmissionStatusEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_status")
-    private Long idStatus;
+    private Integer idStatus;
 
     @Column(name = "status_name", nullable = false, unique = true)
     private String statusName;

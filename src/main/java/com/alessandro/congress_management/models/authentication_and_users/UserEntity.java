@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "User")
 @Table(name= "user")
@@ -21,6 +22,21 @@ public class UserEntity {
     private Long idUser;
 
     @Column
+    private String email;
+
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column
+    private String organization;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
+
+    @Column
     private String username;
 
     @Column
@@ -33,11 +49,11 @@ public class UserEntity {
     private Boolean isActive;
 
     @Column(name = "wallet_balance")
-    private BigDecimal walletBalance;
+    private BigDecimal walletBalance = BigDecimal.ZERO;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }
