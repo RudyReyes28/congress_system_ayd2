@@ -21,6 +21,11 @@ public class UserEntity {
     @Column(name = "id_user")
     private Long idUser;
 
+    @ManyToOne
+    @JoinColumn(name = "id_role", referencedColumnName = "id_role")
+    private RoleEntity role;
+
+
     @Column
     private String email;
 

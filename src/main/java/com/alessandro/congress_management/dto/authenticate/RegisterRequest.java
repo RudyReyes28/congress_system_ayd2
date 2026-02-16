@@ -1,5 +1,6 @@
 package com.alessandro.congress_management.dto.authenticate;
 
+import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
 import lombok.Value;
 
@@ -14,23 +15,10 @@ public class RegisterRequest {
     String organization;
     String photoUrl;
 
-    /*
 
-    Ejemplo de json para el request:
-{
-    "username": "john_doe",
-    "password": "securePassword123",
-    "email": "
-    "fullName": "John Doe",
-    "identificationNumber": "123456789",
-    "phoneNumber": "+1234567890",
-    "organization": "Tech Company",
-    "photoUrl": "http://example.com/photo.jpg"
-}
-     */
-
-    public UserEntity createEntity(String hashedPassword) {
+    public UserEntity createEntity(String hashedPassword, RoleEntity role) {
         UserEntity entity = new UserEntity();
+        entity.setRole(role);
         entity.setUsername(username);
         entity.setPassword(hashedPassword);
         entity.setEmail(email);

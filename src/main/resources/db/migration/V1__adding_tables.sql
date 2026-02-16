@@ -1,9 +1,15 @@
 -- ============================================
 -- AUTHENTICATION AND USERS
 -- ============================================
+CREATE TABLE role (
+    id_role INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255)
+);
 
 CREATE TABLE user (
     id_user BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_role INT NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     full_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
@@ -15,23 +21,12 @@ CREATE TABLE user (
     is_active BOOLEAN DEFAULT TRUE,
     wallet_balance DECIMAL(10,2) DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_role FOREIGN KEY (id_role) REFERENCES role(id_role)
 );
 
-CREATE TABLE role (
-    id_role INT AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(50) NOT NULL UNIQUE,
-    description VARCHAR(255)
-);
 
-CREATE TABLE user_role (
-    id_user_role BIGINT AUTO_INCREMENT PRIMARY KEY,
-    id_user BIGINT NOT NULL,
-    id_role INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user_role_user FOREIGN KEY (id_user) REFERENCES user(id_user),
-    CONSTRAINT fk_user_role_role FOREIGN KEY (id_role) REFERENCES role(id_role)
-);
+
 
 CREATE TABLE refresh_token (
     id_token BIGINT AUTO_INCREMENT PRIMARY KEY,
