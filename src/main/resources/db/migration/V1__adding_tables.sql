@@ -2,26 +2,20 @@
 -- AUTHENTICATION AND USERS
 -- ============================================
 
-CREATE TABLE person (
-    id_person BIGINT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE user (
+    id_user BIGINT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     full_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     organization VARCHAR(255) NOT NULL,
-    photo_url VARCHAR(500)
-);
-
-CREATE TABLE user (
-    id_user BIGINT AUTO_INCREMENT PRIMARY KEY,
-    id_person BIGINT NOT NULL,
+    photo_url VARCHAR(500),
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     identification_number VARCHAR(50) NOT NULL UNIQUE,
     is_active BOOLEAN DEFAULT TRUE,
     wallet_balance DECIMAL(10,2) DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user_person FOREIGN KEY (id_person) REFERENCES person(id_person)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE role (

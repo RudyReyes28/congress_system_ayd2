@@ -21,9 +21,20 @@ public class UserEntity {
     @Column(name = "id_user")
     private Long idUser;
 
-    @ManyToOne
-    @JoinColumn(name = "id_person", referencedColumnName = "id_person")
-    private PersonEntity person;
+    @Column
+    private String email;
+
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column
+    private String organization;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
 
     @Column
     private String username;

@@ -1,7 +1,6 @@
 package com.alessandro.congress_management.services.authenticate;
 
 import com.alessandro.congress_management.exceptions.InvalidTokenException;
-import com.alessandro.congress_management.models.authentication_and_users.PersonEntity;
 import com.alessandro.congress_management.models.authentication_and_users.RefreshTokenEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
 import com.alessandro.congress_management.repositories.authenticate.RefreshTokenRepository;
@@ -9,11 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -134,7 +131,6 @@ public class RefreshTokenServiceImplTest {
     private UserEntity createTestUser() {
         UserEntity user = new UserEntity();
         user.setIdUser(1L);
-        user.setPerson(new PersonEntity());
         user.setUsername("testuser");
         user.setIdentificationNumber("12345678");
         user.setIsActive(true);

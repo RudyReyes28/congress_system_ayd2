@@ -1,6 +1,5 @@
 package com.alessandro.congress_management.dto.authenticate;
 
-import com.alessandro.congress_management.models.authentication_and_users.PersonEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
 import lombok.Value;
 
@@ -18,16 +17,16 @@ public class UserInfoResponse {
     String photoUrl;
     BigDecimal walletBalance;
 
-    public static UserInfoResponse fromEntities(UserEntity user, PersonEntity person) {
+    public static UserInfoResponse fromEntity(UserEntity user) {
         return new UserInfoResponse(
                 user.getIdUser(),
                 user.getUsername(),
-                person.getEmail(),
-                person.getFullName(),
+                user.getEmail(),
+                user.getFullName(),
                 user.getIdentificationNumber(),
-                person.getPhoneNumber(),
-                person.getOrganization(),
-                person.getPhotoUrl(),
+                user.getPhoneNumber(),
+                user.getOrganization(),
+                user.getPhotoUrl(),
                 user.getWalletBalance()
         );
     }
