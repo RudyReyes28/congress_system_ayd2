@@ -8,7 +8,9 @@ import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
 import com.alessandro.congress_management.exceptions.InvalidTokenException;
 import com.alessandro.congress_management.models.authentication_and_users.RefreshTokenEntity;
+import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
+import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
 import com.alessandro.congress_management.security.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,9 @@ public class AuthServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private RoleRepository roleRepository;
+
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -66,6 +71,7 @@ public class AuthServiceImplTest {
         when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
         when(userRepository.existsByIdentificationNumber(TEST_ID_NUMBER)).thenReturn(false);
         when(passwordEncoder.encode(TEST_PASSWORD)).thenReturn(TEST_HASHED_PASSWORD);
+        when(roleRepository.findByRoleName("PARTICIPANT")).thenReturn(Optional.of(createRoleEntity()));
         when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
             UserEntity user = invocation.getArgument(0);
             user.setIdUser(1L);
@@ -158,6 +164,25 @@ public class AuthServiceImplTest {
         );
 
         assertEquals("El número de identificación ya está registrado", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void testRegister_whenRoleNotFound() {
+        //Arrange
+        RegisterRequest request = createRegisterRequest();
+        when(userRepository.existsByUsername(TEST_USERNAME)).thenReturn(false);
+        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
+        when(userRepository.existsByIdentificationNumber(TEST_ID_NUMBER)).thenReturn(false);
+        when(roleRepository.findByRoleName("PARTICIPANT")).thenReturn(Optional.empty());
+
+        //Assert
+        DuplicatedEntityException exception = assertThrows(
+                DuplicatedEntityException.class,
+                () -> authService.register(request)
+        );
+
+        assertEquals("El rol especificado no existe", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
 
@@ -364,6 +389,7 @@ public class AuthServiceImplTest {
     private UserEntity createTestUser() {
         UserEntity user = new UserEntity();
         user.setIdUser(1L);
+        user.setRole(createRoleEntity());
         user.setUsername(TEST_USERNAME);
         user.setPassword(TEST_HASHED_PASSWORD);
         user.setEmail(TEST_EMAIL);
@@ -381,6 +407,13 @@ public class AuthServiceImplTest {
         token.setToken(TEST_REFRESH_TOKEN);
         token.setExpiryDate(LocalDateTime.now().plusDays(7));
         return token;
+    }
+
+    private RoleEntity createRoleEntity() {
+        RoleEntity role = new RoleEntity();
+        role.setIdRole(1);
+        role.setRoleName("PARTICIPANT");
+        return role;
     }
 
 }

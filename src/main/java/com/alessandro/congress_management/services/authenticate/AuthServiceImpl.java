@@ -5,7 +5,9 @@ import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
 import com.alessandro.congress_management.exceptions.InvalidTokenException;
 import com.alessandro.congress_management.models.authentication_and_users.RefreshTokenEntity;
+import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
+import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
 import com.alessandro.congress_management.security.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -17,19 +19,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 public class AuthServiceImpl implements AuthService{
-
+    private final String DEFAULT_ROLE = "PARTICIPANT";
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
 
     @Autowired
     public AuthServiceImpl(
-            UserRepository userRepository,
+            UserRepository userRepository, RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             JwtTokenProvider jwtTokenProvider,
             RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.refreshTokenService = refreshTokenService;
@@ -53,16 +57,21 @@ public class AuthServiceImpl implements AuthService{
             throw new DuplicatedEntityException("El número de identificación ya está registrado");
         }
 
+        RoleEntity defaultRole = roleRepository.findByRoleName(DEFAULT_ROLE)
+                .orElseThrow(() -> new DuplicatedEntityException("El rol especificado no existe"));
+
         // Hashear password
         String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
         // Crear entidad
-        UserEntity user = registerRequest.createEntity(hashedPassword);
+        UserEntity user = registerRequest.createEntity(hashedPassword, defaultRole);
 
         // Guardar usuario
         UserEntity savedUser = userRepository.save(user);
 
-        log.info("Usuario registrado exitosamente: {}", savedUser.getUsername());
+
+
+        //log.info("Usuario registrado exitosamente: {}", savedUser.getUsername());
 
         // Generar tokens
         return generateAuthResponse(savedUser);

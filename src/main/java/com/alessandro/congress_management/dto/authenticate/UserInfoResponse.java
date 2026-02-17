@@ -16,6 +16,8 @@ public class UserInfoResponse {
     String organization;
     String photoUrl;
     BigDecimal walletBalance;
+    Integer roleId;
+    String roleName;
 
     public static UserInfoResponse fromEntity(UserEntity user) {
         return new UserInfoResponse(
@@ -27,7 +29,9 @@ public class UserInfoResponse {
                 user.getPhoneNumber(),
                 user.getOrganization(),
                 user.getPhotoUrl(),
-                user.getWalletBalance()
+                user.getWalletBalance(),
+                user.getRole().getIdRole(),
+                user.getRole().getRoleName()
         );
     }
 
