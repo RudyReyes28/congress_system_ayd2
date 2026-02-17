@@ -4,6 +4,8 @@ import com.alessandro.congress_management.dto.authenticate.*;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
 import com.alessandro.congress_management.exceptions.InvalidTokenException;
+import com.alessandro.congress_management.security.JwtAuthenticationFilter;
+import com.alessandro.congress_management.security.JwtTokenProvider;
 import com.alessandro.congress_management.services.authenticate.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,12 @@ import static org.mockito.Mockito.when;
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     private MockMvc mockMvc;
