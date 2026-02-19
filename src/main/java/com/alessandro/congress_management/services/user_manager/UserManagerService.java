@@ -25,5 +25,8 @@ public interface UserManagerService {
     //Actualizar contraseña de usuario
     void changeUserPasswordByAdmin(Long idUser, UpdateUserPassword updatePassword) throws NotFoundException;
 
+    //Crear administrador de congresos
+    UserCongressAdminResponse createCongressAdmin(CreateCongressAdminRequest createCongressAdminRequest) throws DuplicatedEntityException, NotFoundException;
+
 
 }

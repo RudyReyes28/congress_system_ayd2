@@ -1,16 +1,20 @@
 package com.alessandro.congress_management.services.user_manager;
 
+import com.alessandro.congress_management.dto.institution_administrator.CreateInstitutionAdministratorRequest;
 import com.alessandro.congress_management.dto.user_manager.*;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.NotFoundException;
 import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
+import com.alessandro.congress_management.models.congress_management.InstitutionAdministratorEntity;
 import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
+import com.alessandro.congress_management.services.institution_administrator.InstitutionAdministratorService;
 import com.alessandro.congress_management.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,10 +24,12 @@ public class UserManagerServiceImpl implements UserManagerService {
     private static final String ADMIN_ROLE_NAME = "ADMIN_SYSTEM";
     private final UserRepository userRepository;
     private final UserService userService;
+    private final InstitutionAdministratorService institutionAdministratorService;
 
-    public UserManagerServiceImpl(UserRepository userRepository, UserService userService) {
+    public UserManagerServiceImpl(UserRepository userRepository, UserService userService, InstitutionAdministratorService institutionAdministratorService) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.institutionAdministratorService = institutionAdministratorService;
     }
 
 
@@ -74,4 +80,28 @@ public class UserManagerServiceImpl implements UserManagerService {
     public void changeUserPasswordByAdmin(Long idUser,UpdateUserPassword updatePassword) throws NotFoundException {
         userService.changeUserPassword(idUser, updatePassword.getNewPassword());
     }
+
+    @Override
+    public UserCongressAdminResponse createCongressAdmin(CreateCongressAdminRequest createCongressAdminRequest) throws DuplicatedEntityException, NotFoundException {
+        CreateUserCommand command = new CreateUserCommand(
+                createCongressAdminRequest.getUsername(),
+                createCongressAdminRequest.getEmail(),
+                createCongressAdminRequest.getPassword(),
+                createCongressAdminRequest.getFullName(),
+                createCongressAdminRequest.getPhoneNumber(),
+                createCongressAdminRequest.getOrganization(),
+                createCongressAdminRequest.getIdentificationNumber(),
+                "ADMIN_CONGRESS"
+        );
+
+        UserEntity user = userService.createUser(command);
+
+        InstitutionAdministratorEntity institutionAdmin = institutionAdministratorService.createInstitutionAdministrator(
+                new CreateInstitutionAdministratorRequest(createCongressAdminRequest.getIdInstitution(), user.getIdUser())
+        );
+
+        return UserCongressAdminResponse.fromEntity(institutionAdmin);
+    }
+
+
 }

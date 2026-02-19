@@ -96,4 +96,17 @@ public class UserManagerController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/congress-admin")
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @Operation(summary = "Create a new congress administrator", description = "Creates a new congress administrator in the system. Only administrators can access this endpoint.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Congress administrator created successfully", content = @Content(schema = @Schema(implementation = UserCongressAdminResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "409", description = "Username, email or identification already registered")
+    })
+    public ResponseEntity<UserCongressAdminResponse> createCongressAdmin(@RequestBody CreateCongressAdminRequest createCongressAdminRequest) throws DuplicatedEntityException, NotFoundException {
+        UserCongressAdminResponse congressAdminResponse = userManagerService.createCongressAdmin(createCongressAdminRequest);
+        return ResponseEntity.status(201).body(congressAdminResponse);
+    }
+
 }

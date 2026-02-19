@@ -1,10 +1,14 @@
 package com.alessandro.congress_management.services.user_manager;
+import com.alessandro.congress_management.dto.institution_administrator.CreateInstitutionAdministratorRequest;
 import com.alessandro.congress_management.dto.user_manager.*;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.NotFoundException;
 import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
+import com.alessandro.congress_management.models.congress_management.InstitutionAdministratorEntity;
+import com.alessandro.congress_management.models.institutions_and_system.InstitutionEntity;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
+import com.alessandro.congress_management.services.institution_administrator.InstitutionAdministratorService;
 import com.alessandro.congress_management.services.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +31,9 @@ class UserManagerServiceImplTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private InstitutionAdministratorService institutionAdministratorService;
 
     @InjectMocks
     private UserManagerServiceImpl userManagerService;
@@ -122,6 +129,40 @@ class UserManagerServiceImplTest {
                     command.organization().equals(request.getOrganization()) &&
                     command.identificationNumber().equals(request.getIdentificationNumber()) &&
                     command.roleName().equals(request.getRoleName());
+        }));
+    }
+
+    @Test
+    void testCreateCongressAdminByAdmin_success() throws DuplicatedEntityException, NotFoundException {
+        // Arrange
+        CreateCongressAdminRequest request = createCongressAdminRequest();
+        UserEntity createdUser = createUser(1L, "johndoe", "CONGRESS_ADMIN");
+        InstitutionAdministratorEntity createdAdmin = createInstitutionAdmin(createdUser, createInstitution());
+        when(userService.createUser(any(CreateUserCommand.class))).thenReturn(createdUser);
+        when(institutionAdministratorService.createInstitutionAdministrator(any(CreateInstitutionAdministratorRequest.class)))
+                .thenReturn(createdAdmin);
+
+        //Act
+        UserCongressAdminResponse response = userManagerService.createCongressAdmin(request);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(response, "Response no debe ser null"),
+                () -> assertEquals("johndoe", response.getUsername(), "Username debe coincidir"),
+                () -> assertEquals("johndoe@example.com", response.getEmail(), "Email debe coincidir"),
+                () -> assertEquals("USAC", response.getInstitutionName(), "InstitutionName debe coincidir")
+        );
+
+        // Assert - Verificar que los datos del Request se pasan correctamente al Command
+        verify(userService).createUser(argThat(command -> {
+            return command.username().equals(request.getUsername()) &&
+                    command.email().equals(request.getEmail()) &&
+                    command.password().equals(request.getPassword()) &&
+                    command.fullName().equals(request.getFullName()) &&
+                    command.phoneNumber().equals(request.getPhoneNumber()) &&
+                    command.organization().equals(request.getOrganization()) &&
+                    command.identificationNumber().equals(request.getIdentificationNumber()) &&
+                    command.roleName().equals("ADMIN_CONGRESS");
         }));
     }
 
@@ -478,6 +519,27 @@ class UserManagerServiceImplTest {
         return request;
     }
 
+    private CreateCongressAdminRequest createCongressAdminRequest() {
+        return new CreateCongressAdminRequest(
+                "john@example.com",
+                "John Doe",
+                    "555-1234",
+                    "USAC",
+                    "johndoe",
+                    "password123",
+                    "12345678",
+                    1L
+        );
+    }
+
+    private InstitutionAdministratorEntity createInstitutionAdmin(UserEntity user, InstitutionEntity institution) {
+        InstitutionAdministratorEntity admin = new InstitutionAdministratorEntity();
+        admin.setIdInstitutionAdmin(1L);
+        admin.setUser(user);
+        admin.setInstitution(institution);
+        return admin;
+    }
+
     private UpdateUserRequest createUpdateRequest() {
         return new UpdateUserRequest(
                 "newusername",
@@ -487,6 +549,14 @@ class UserManagerServiceImplTest {
                 "UMG",
                 "87654321"
         );
+    }
+
+    private InstitutionEntity createInstitution() {
+        InstitutionEntity institution = new InstitutionEntity();
+        institution.setIdInstitution(1L);
+        institution.setInstitutionName("USAC");
+        institution.setDescription("Universidad de San Carlos de Guatemala");
+        return institution;
     }
 
     private UserEntity createUser(Long id, String username, String roleName) {
