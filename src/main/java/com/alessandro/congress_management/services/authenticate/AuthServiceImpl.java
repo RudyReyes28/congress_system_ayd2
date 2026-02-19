@@ -1,6 +1,7 @@
 package com.alessandro.congress_management.services.authenticate;
 
 import com.alessandro.congress_management.dto.authenticate.*;
+import com.alessandro.congress_management.dto.user_manager.CreateUserCommand;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
 import com.alessandro.congress_management.exceptions.InvalidTokenException;
@@ -10,6 +11,8 @@ import com.alessandro.congress_management.models.authentication_and_users.UserEn
 import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
 import com.alessandro.congress_management.security.JwtTokenProvider;
+import com.alessandro.congress_management.services.user.UserService;
+import com.alessandro.congress_management.services.user_manager.UserManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,56 +28,44 @@ public class AuthServiceImpl implements AuthService{
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final UserService userService;
 
     @Autowired
     public AuthServiceImpl(
             UserRepository userRepository, RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             JwtTokenProvider jwtTokenProvider,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService, UserService userService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.refreshTokenService = refreshTokenService;
+        this.userService = userService;
     }
 
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest registerRequest) throws DuplicatedEntityException {
-        // Validar unicidad de username
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new DuplicatedEntityException("El username ya está en uso");
-        }
 
-        // Validar unicidad de email
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new DuplicatedEntityException("El email ya está registrado");
-        }
+        CreateUserCommand command = new CreateUserCommand(
+                registerRequest.getUsername(),
+                registerRequest.getEmail(),
+                registerRequest.getPassword(),
+                registerRequest.getFullName(),
+                registerRequest.getPhoneNumber(),
+                registerRequest.getOrganization(),
+                registerRequest.getIdentificationNumber(),
+                DEFAULT_ROLE
+        );
 
-        // Validar unicidad de número de identificación
-        if (userRepository.existsByIdentificationNumber(registerRequest.getIdentificationNumber())) {
-            throw new DuplicatedEntityException("El número de identificación ya está registrado");
-        }
-
-        RoleEntity defaultRole = roleRepository.findByRoleName(DEFAULT_ROLE)
-                .orElseThrow(() -> new DuplicatedEntityException("El rol especificado no existe"));
-
-        // Hashear password
-        String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
-
-        // Crear entidad
-        UserEntity user = registerRequest.createEntity(hashedPassword, defaultRole);
-
-        // Guardar usuario
-        UserEntity savedUser = userRepository.save(user);
-
+        UserEntity user = userService.createUser(command);
 
 
         //log.info("Usuario registrado exitosamente: {}", savedUser.getUsername());
 
         // Generar tokens
-        return generateAuthResponse(savedUser);
+        return generateAuthResponse(user);
     }
 
     @Override

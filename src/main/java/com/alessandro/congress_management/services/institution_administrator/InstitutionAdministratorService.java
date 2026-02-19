@@ -1,0 +1,10 @@
+package com.alessandro.congress_management.services.institution_administrator;
+
+import com.alessandro.congress_management.dto.institution_administrator.CreateInstitutionAdministratorRequest;
+import com.alessandro.congress_management.exceptions.NotFoundException;
+import com.alessandro.congress_management.models.congress_management.InstitutionAdministratorEntity;
+
+public interface InstitutionAdministratorService {
+
+    InstitutionAdministratorEntity createInstitutionAdministrator(CreateInstitutionAdministratorRequest request) throws NotFoundException;
+}

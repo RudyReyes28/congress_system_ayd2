@@ -4,6 +4,8 @@ import com.alessandro.congress_management.dto.authenticate.AuthResponse;
 import com.alessandro.congress_management.dto.authenticate.LoginRequest;
 import com.alessandro.congress_management.dto.authenticate.RefreshTokenRequest;
 import com.alessandro.congress_management.dto.authenticate.RegisterRequest;
+import com.alessandro.congress_management.dto.user_manager.CreateUserCommand;
+import com.alessandro.congress_management.dto.user_manager.CreateUserRequest;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
 import com.alessandro.congress_management.exceptions.InvalidTokenException;
@@ -13,6 +15,7 @@ import com.alessandro.congress_management.models.authentication_and_users.UserEn
 import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
 import com.alessandro.congress_management.security.JwtTokenProvider;
+import com.alessandro.congress_management.services.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -47,6 +50,8 @@ public class AuthServiceImplTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private UserService userService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -65,125 +70,59 @@ public class AuthServiceImplTest {
     void testRegister_success() throws DuplicatedEntityException {
         // Arrange
         RegisterRequest request = createRegisterRequest();
-        ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        UserEntity createdUser = createTestUser();
 
-        when(userRepository.existsByUsername(TEST_USERNAME)).thenReturn(false);
-        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
-        when(userRepository.existsByIdentificationNumber(TEST_ID_NUMBER)).thenReturn(false);
-        when(passwordEncoder.encode(TEST_PASSWORD)).thenReturn(TEST_HASHED_PASSWORD);
-        when(roleRepository.findByRoleName("PARTICIPANT")).thenReturn(Optional.of(createRoleEntity()));
-        when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
-            UserEntity user = invocation.getArgument(0);
-            user.setIdUser(1L);
-            return user;
-        });
-        when(jwtTokenProvider.generateToken(TEST_USERNAME, 1L)).thenReturn(TEST_ACCESS_TOKEN);
-        when(jwtTokenProvider.getExpirationMs()).thenReturn(3600000L);
-        when(refreshTokenService.createRefreshToken(any(UserEntity.class)))
+        when(userService.createUser(any(CreateUserCommand.class)))
+                .thenReturn(createdUser);
+
+        when(jwtTokenProvider.generateToken(TEST_USERNAME, 1L))
+                .thenReturn(TEST_ACCESS_TOKEN);
+
+        when(jwtTokenProvider.getExpirationMs())
+                .thenReturn(3600000L);
+
+        when(refreshTokenService.createRefreshToken(createdUser))
                 .thenReturn(createRefreshToken());
 
         // Act
         AuthResponse response = authService.register(request);
 
         // Assert
-        verify(userRepository).save(userCaptor.capture());
-        UserEntity capturedUser = userCaptor.getValue();
-
         assertAll(
                 () -> assertNotNull(response),
                 () -> assertEquals(TEST_ACCESS_TOKEN, response.getAccessToken()),
                 () -> assertEquals(TEST_REFRESH_TOKEN, response.getRefreshToken()),
                 () -> assertEquals("Bearer", response.getTokenType()),
-                () -> assertNotNull(response.getUser()),
-                () -> assertEquals(TEST_USERNAME, response.getUser().getUsername()),
-                () -> assertEquals(TEST_EMAIL, response.getUser().getEmail()),
-                // Verificar entidad capturada
-                () -> assertEquals(TEST_USERNAME, capturedUser.getUsername()),
-                () -> assertEquals(TEST_HASHED_PASSWORD, capturedUser.getPassword()),
-                () -> assertEquals(TEST_EMAIL, capturedUser.getEmail()),
-                () -> assertEquals(TEST_FULL_NAME, capturedUser.getFullName()),
-                () -> assertEquals(TEST_ID_NUMBER, capturedUser.getIdentificationNumber()),
-                () -> assertEquals(TEST_PHONE, capturedUser.getPhoneNumber()),
-                () -> assertEquals(TEST_ORG, capturedUser.getOrganization()),
-                () -> assertTrue(capturedUser.getIsActive())
+                () -> assertEquals(TEST_USERNAME, response.getUser().getUsername())
         );
 
-        verify(passwordEncoder).encode(TEST_PASSWORD);
+        // Verificar que construyó bien el command
+        verify(userService).createUser(argThat(command ->
+                command.username().equals(TEST_USERNAME) &&
+                        command.email().equals(TEST_EMAIL) &&
+                        command.password().equals(TEST_PASSWORD) &&
+                        command.roleName().equals("PARTICIPANT")
+        ));
+
         verify(jwtTokenProvider).generateToken(TEST_USERNAME, 1L);
-        verify(refreshTokenService).createRefreshToken(any(UserEntity.class));
+        verify(refreshTokenService).createRefreshToken(createdUser);
     }
 
     @Test
-    void testRegister_whenUsernameExists() {
-        // Arrange
+    void testRegister_whenUserServiceThrows_shouldPropagateException()
+            throws DuplicatedEntityException {
+
         RegisterRequest request = createRegisterRequest();
 
-        when(userRepository.existsByUsername(TEST_USERNAME)).thenReturn(true);
+        when(userService.createUser(any(CreateUserCommand.class)))
+                .thenThrow(new DuplicatedEntityException("Username ya existe"));
 
-        // Assert
-        DuplicatedEntityException exception = assertThrows(
+        assertThrows(
                 DuplicatedEntityException.class,
                 () -> authService.register(request)
         );
 
-        assertEquals("El username ya está en uso", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void testRegister_whenEmailExists() {
-        // Arrange
-        RegisterRequest request = createRegisterRequest();
-
-        when(userRepository.existsByUsername(TEST_USERNAME)).thenReturn(false);
-        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(true);
-
-        // Assert
-        DuplicatedEntityException exception = assertThrows(
-                DuplicatedEntityException.class,
-                () -> authService.register(request)
-        );
-
-        assertEquals("El email ya está registrado", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void testRegister_whenIdentificationNumberExists() {
-        // Arrange
-        RegisterRequest request = createRegisterRequest();
-
-        when(userRepository.existsByUsername(TEST_USERNAME)).thenReturn(false);
-        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
-        when(userRepository.existsByIdentificationNumber(TEST_ID_NUMBER)).thenReturn(true);
-
-        // Assert
-        DuplicatedEntityException exception = assertThrows(
-                DuplicatedEntityException.class,
-                () -> authService.register(request)
-        );
-
-        assertEquals("El número de identificación ya está registrado", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void testRegister_whenRoleNotFound() {
-        //Arrange
-        RegisterRequest request = createRegisterRequest();
-        when(userRepository.existsByUsername(TEST_USERNAME)).thenReturn(false);
-        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
-        when(userRepository.existsByIdentificationNumber(TEST_ID_NUMBER)).thenReturn(false);
-        when(roleRepository.findByRoleName("PARTICIPANT")).thenReturn(Optional.empty());
-
-        //Assert
-        DuplicatedEntityException exception = assertThrows(
-                DuplicatedEntityException.class,
-                () -> authService.register(request)
-        );
-
-        assertEquals("El rol especificado no existe", exception.getMessage());
-        verify(userRepository, never()).save(any());
+        verify(userService).createUser(any(CreateUserCommand.class));
     }
 
     // ----------------- Login Tests -----------------
