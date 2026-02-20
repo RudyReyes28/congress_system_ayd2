@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class UserManagerController {
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "409", description = "Username, email or identification already registered")
     })
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) throws DuplicatedEntityException {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) throws DuplicatedEntityException {
         UserResponse userResponse = userManagerService.createUserByAdmin(createUserRequest);
         return ResponseEntity.status(201).body(userResponse);
     }
@@ -64,7 +65,7 @@ public class UserManagerController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
-    public ResponseEntity<Void> updateUserStatus(@PathVariable Long idUser, @RequestBody UpdateStatusUser updateStatus) throws DuplicatedEntityException, NotFoundException {
+    public ResponseEntity<Void> updateUserStatus(@PathVariable Long idUser,@Valid @RequestBody UpdateStatusUser updateStatus) throws DuplicatedEntityException, NotFoundException {
         userManagerService.setUserActiveStatus(idUser, updateStatus);
         return ResponseEntity.accepted().build();
     }
@@ -78,7 +79,7 @@ public class UserManagerController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
-    public ResponseEntity<UserResponse> updateUserById(@PathVariable Long idUser, @RequestBody UpdateUserRequest updateUserRequest) throws DuplicatedEntityException, NotFoundException {
+    public ResponseEntity<UserResponse> updateUserById(@PathVariable Long idUser,@Valid @RequestBody UpdateUserRequest updateUserRequest) throws DuplicatedEntityException, NotFoundException {
         UserResponse updatedUser = userManagerService.updateUserByAdmin(idUser, updateUserRequest);
         return ResponseEntity.ok(updatedUser);
     }
@@ -91,7 +92,7 @@ public class UserManagerController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
-    public ResponseEntity<Void> changeUserPasswordById(@PathVariable Long idUser, @RequestBody UpdateUserPassword updatePassword) throws NotFoundException {
+    public ResponseEntity<Void> changeUserPasswordById(@PathVariable Long idUser,@Valid @RequestBody UpdateUserPassword updatePassword) throws NotFoundException {
         userManagerService.changeUserPasswordByAdmin(idUser, updatePassword);
         return ResponseEntity.noContent().build();
     }
@@ -104,7 +105,7 @@ public class UserManagerController {
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "409", description = "Username, email or identification already registered")
     })
-    public ResponseEntity<UserCongressAdminResponse> createCongressAdmin(@RequestBody CreateCongressAdminRequest createCongressAdminRequest) throws DuplicatedEntityException, NotFoundException {
+    public ResponseEntity<UserCongressAdminResponse> createCongressAdmin(@Valid @RequestBody CreateCongressAdminRequest createCongressAdminRequest) throws DuplicatedEntityException, NotFoundException {
         UserCongressAdminResponse congressAdminResponse = userManagerService.createCongressAdmin(createCongressAdminRequest);
         return ResponseEntity.status(201).body(congressAdminResponse);
     }
