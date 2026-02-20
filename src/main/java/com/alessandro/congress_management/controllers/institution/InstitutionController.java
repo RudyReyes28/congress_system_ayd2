@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,7 +70,7 @@ public class InstitutionController {
             @ApiResponse(responseCode = "400", description = "Invalid request data"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
-    public ResponseEntity<InstitutionResponse> createInstitution(@RequestBody CreateInstitutionRequest request) throws DuplicatedEntityException {
+    public ResponseEntity<InstitutionResponse> createInstitution(@Valid @RequestBody CreateInstitutionRequest request) throws DuplicatedEntityException {
         InstitutionResponse institution = institutionService.createInstitution(request);
         return ResponseEntity.status(201).body(institution);
     }
@@ -83,7 +84,7 @@ public class InstitutionController {
             @ApiResponse(responseCode = "404", description = "Institution not found"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
-    public ResponseEntity<InstitutionResponse> updateInstitution(@PathVariable Long id, @RequestBody UpdateInstitutionRequest request) throws DuplicatedEntityException, NotFoundException {
+    public ResponseEntity<InstitutionResponse> updateInstitution(@PathVariable Long id,@Valid @RequestBody UpdateInstitutionRequest request) throws DuplicatedEntityException, NotFoundException {
         InstitutionResponse institution = institutionService.updateInstitution(id, request);
         return ResponseEntity.ok(institution);
     }
@@ -97,7 +98,7 @@ public class InstitutionController {
             @ApiResponse(responseCode = "404", description = "Institution not found"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
-    public ResponseEntity<Void> updateInstitutionStatus(@PathVariable Long id, @RequestBody UpdateStatusInstitutionRequest request) throws NotFoundException, BusinessRuleException {
+    public ResponseEntity<Void> updateInstitutionStatus(@PathVariable Long id,@Valid @RequestBody UpdateStatusInstitutionRequest request) throws NotFoundException, BusinessRuleException {
         institutionService.uptateStatusInstitution(id, request);
         return ResponseEntity.ok().build();
     }

@@ -402,12 +402,12 @@ class UserManagerControllerTest {
 
     private CreateCongressAdminRequest createCongressAdminRequest() {
         return new CreateCongressAdminRequest(
-                "admin_congress",
                 "admin@usac.edu",
-                "securePassword123",
                 "Admin Congress",
-                "555-9999",
-                "USAC Admin",
+                "7777-9999",
+                "USAC",
+                "admin_congress",
+                "securePassword123",
                 "99999999",
                 1L  // institutionId
         );
