@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "SystemConfiguration")
 @Table(name = "system_configuration")
@@ -26,5 +27,5 @@ public class SystemConfigurationEntity {
     private String description;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

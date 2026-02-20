@@ -67,7 +67,6 @@ public class UserManagerServiceImpl implements UserManagerService {
             }
         }
         userService.setUserActiveStatus(idUser, updateStatusUser.isActive());
-
     }
 
     @Override
