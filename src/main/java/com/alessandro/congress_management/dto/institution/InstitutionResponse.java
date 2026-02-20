@@ -11,6 +11,7 @@ public class InstitutionResponse {
     String address;
     String contactEmail;
     String contactPhone;
+    boolean active;
 
     public static InstitutionResponse fromEntity(InstitutionEntity institution) {
         return new InstitutionResponse(
@@ -19,7 +20,8 @@ public class InstitutionResponse {
                 institution.getDescription(),
                 institution.getAddress(),
                 institution.getContactEmail(),
-                institution.getContactPhone()
+                institution.getContactPhone(),
+                institution.getIsActive()
         );
     }
 

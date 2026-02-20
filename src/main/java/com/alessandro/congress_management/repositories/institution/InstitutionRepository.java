@@ -12,4 +12,9 @@ public interface InstitutionRepository extends JpaRepository<InstitutionEntity, 
 
     Optional<List<InstitutionEntity>> findByIsActiveTrue();
 
+    boolean existsByInstitutionName(String institutionName);
+
+    boolean existsByContactEmail(String contactEmail);
+
+    boolean existsByInstitutionNameAndIdInstitutionNot(String institutionName, Long idInstitution);
 }
