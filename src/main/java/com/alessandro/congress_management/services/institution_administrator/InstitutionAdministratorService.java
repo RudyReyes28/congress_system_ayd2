@@ -7,4 +7,7 @@ import com.alessandro.congress_management.models.congress_management.Institution
 public interface InstitutionAdministratorService {
 
     InstitutionAdministratorEntity createInstitutionAdministrator(CreateInstitutionAdministratorRequest request) throws NotFoundException;
+
+    InstitutionAdministratorEntity findInstitutionAdministratorByIdAdministrator(Long idAdministrator) throws NotFoundException;
+
 }
