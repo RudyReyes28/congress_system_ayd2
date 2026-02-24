@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -294,6 +296,53 @@ class InstitutionAdministratorServiceImplTest {
         );
 
         verify(institutionAdministratorRepository, times(2)).save(any());
+    }
+
+    //----------------------------- TEST FIND INSTITUTION ADMINISTRATOR BY ID -------------------
+    @Test
+    void testFindInstitutionAdministratorByIdAdministrator_success() throws NotFoundException {
+        // Arrange
+        Long adminId = 1L;
+        InstitutionAdministratorEntity institutionAdmin = new InstitutionAdministratorEntity();
+        institutionAdmin.setIdInstitutionAdmin(1L);
+        institutionAdmin.setUser(createUser(adminId, "admin_congress", "ADMIN_CONGRESS"));
+        institutionAdmin.setInstitution(createInstitution(1L, "USAC"));
+
+        when(institutionAdministratorRepository.findByUser_IdUser(adminId))
+                .thenReturn(Optional.of(institutionAdmin));
+
+        // Act
+        InstitutionAdministratorEntity result =
+                institutionAdministratorService.findInstitutionAdministratorByIdAdministrator(adminId);
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result, "Result no debe ser null"),
+                () -> assertEquals(institutionAdmin.getIdInstitutionAdmin(), result.getIdInstitutionAdmin(),
+                        "ID de institución admin debe coincidir"),
+                () -> assertEquals(institutionAdmin.getUser().getIdUser(), result.getUser().getIdUser(),
+                        "ID de usuario debe coincidir"),
+                () -> assertEquals(institutionAdmin.getInstitution().getIdInstitution(),
+                        result.getInstitution().getIdInstitution(),
+                        "ID de institución debe coincidir")
+        );
+    }
+
+    @Test
+    void testFindInstitutionAdministratorByIdAdministrator_whenNotFound_shouldThrowException() {
+        // Arrange
+        Long adminId = 999L;
+
+        when(institutionAdministratorRepository.findByUser_IdUser(adminId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> institutionAdministratorService.findInstitutionAdministratorByIdAdministrator(adminId)
+        );
+        assertEquals("Institution administrator not found with id: " + adminId, exception.getMessage());
+        verify(institutionAdministratorRepository).findByUser_IdUser(adminId);
     }
 
     // --------------------- METODOS AUXILIARES -------------------

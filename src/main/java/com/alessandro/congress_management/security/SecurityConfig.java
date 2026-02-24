@@ -64,6 +64,11 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh-token"
                         ).permitAll()
 
+                        //Endpoints públicos de congresos
+                        .requestMatchers(
+                                "/api/v1/congresses/public"
+                        ).permitAll()
+
                         // Swagger UI y OpenAPI docs
                         .requestMatchers(
                                 "/swagger-ui/**",

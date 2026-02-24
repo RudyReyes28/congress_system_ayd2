@@ -35,4 +35,10 @@ public class InstitutionAdministratorServiceImpl implements InstitutionAdministr
 
         return institutionAdministratorRepository.save(institutionAdministrator);
     }
+
+    @Override
+    public InstitutionAdministratorEntity findInstitutionAdministratorByIdAdministrator(Long idAdministrator) throws NotFoundException {
+        return institutionAdministratorRepository.findByUser_IdUser(idAdministrator)
+                .orElseThrow(() -> new NotFoundException("Institution administrator not found with id: " + idAdministrator));
+    }
 }
