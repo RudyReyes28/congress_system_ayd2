@@ -78,17 +78,31 @@ public class CongressController {
         return ResponseEntity.ok(congresses);
     }
 
-    @GetMapping("/admin/{idUser}")
+    @PostMapping("/{idCongress}/administrators/{idUser}")
     @PreAuthorize("hasRole('ADMIN_CONGRESS')")
-    @Operation(summary = "Get congresses by administrator", description = "Retrieves a list of congresses managed by a specific administrator. Only administrators can access this endpoint.")
+    @Operation(summary = "Add an administrator to a congress", description = "Adds an administrator to a specific congress. Only administrators can access this endpoint.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of congresses retrieved successfully"),
+            @ApiResponse(responseCode = "200", description = "Administrator added to congress successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Administrator not found")
+            @ApiResponse(responseCode = "404", description = "Congress or user not found")
     })
-    public ResponseEntity<List<CongressResponse>> getCongressesByAdmin(@PathVariable Long idUser) throws NotFoundException {
-        List<CongressResponse> congresses = congressService.getCongressesByAdmin(idUser);
-        return ResponseEntity.ok(congresses);
+    public ResponseEntity<Void> addAdministratorToCongress(@PathVariable Long idCongress, @PathVariable Long idUser) throws NotFoundException, BusinessRuleException {
+        congressService.addAdministrator(idCongress, idUser);
+        return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{idCongress}/administrators/{idUser}")
+    @PreAuthorize("hasRole('ADMIN_CONGRESS')")
+    @Operation(summary = "Remove an administrator from a congress", description = "Removes an administrator from a specific congress. Only administrators can access this endpoint.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Administrator removed from congress successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Congress or user not found")
+    })
+    public ResponseEntity<Void> removeAdministratorFromCongress(@PathVariable Long idCongress, @PathVariable Long idUser) throws NotFoundException, BusinessRuleException {
+        congressService.removeAdministrator(idCongress, idUser);
+        return ResponseEntity.ok().build();
+    }
 }

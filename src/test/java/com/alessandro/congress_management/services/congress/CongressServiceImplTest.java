@@ -63,7 +63,7 @@ class CongressServiceImplTest {
         when(institutionAdminService.findInstitutionAdministratorByIdAdministrator(1L))
                 .thenReturn(institutionAdmin);
         when(congressRepository.save(any(CongressEntity.class))).thenReturn(savedCongress);
-        when(congressAdminService.assignAdministratorToCongress(1L, 1L))
+        when(congressAdminService.assignAdministratorToCongress(1L, savedCongress))
                 .thenReturn(new CongressAdministratorEntity());
 
         ArgumentCaptor<CongressEntity> captor = ArgumentCaptor.forClass(CongressEntity.class);
@@ -83,7 +83,7 @@ class CongressServiceImplTest {
                 () -> assertNotNull(captured.getInstitution())
         );
 
-        verify(congressAdminService).assignAdministratorToCongress(1L, 1L);
+        verify(congressAdminService).assignAdministratorToCongress(1L, savedCongress);
     }
 
     @Test
@@ -180,7 +180,7 @@ class CongressServiceImplTest {
             entity.setIdCongress(1L);
             return entity;
         });
-        when(congressAdminService.assignAdministratorToCongress(anyLong(), anyLong()))
+        when(congressAdminService.assignAdministratorToCongress(anyLong(),  any()))
                 .thenReturn(new CongressAdministratorEntity());
 
         ArgumentCaptor<CongressEntity> captor = ArgumentCaptor.forClass(CongressEntity.class);
@@ -311,27 +311,82 @@ class CongressServiceImplTest {
         verify(congressRepository, never()).save(any());
     }
 
-    /*@Test
-    void testUpdateCongress_whenPriceUnchangedWithRegistrations_shouldSucceed() throws Exception {
+    //--------------------- ADD/REMOVE ADMIN TESTS -----------------
+    @Test
+    void testAddAdministrator_success() throws Exception {
         // Arrange
         Long congressId = 1L;
-        UpdateCongressRequest request = createUpdateRequest(); // Price: 200.00
-        CongressEntity existingCongress = createCongress(congressId, "Congress", true);
-        existingCongress.setPrice(new BigDecimal("200.00")); // Mismo precio
+        Long userId = 1L;
+        CongressEntity congress = createCongress(congressId, "Congress", true);
 
-        when(congressRepository.existsByCongressNameAndIdCongressNot(anyString(), eq(congressId)))
-                .thenReturn(false);
-        when(congressRepository.findById(congressId)).thenReturn(Optional.of(existingCongress));
-        when(registrationRepository.existsByCongress_IdCongress(congressId)).thenReturn(true);
-        when(congressRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(congressRepository.findById(congressId)).thenReturn(Optional.of(congress));
+        when(institutionAdminService.isUserAdminOfInstitution(userId, congress.getInstitution().getIdInstitution()))
+                .thenReturn(true);
+        when(congressAdminService.assignAdministratorToCongress(userId, congress))
+                .thenReturn(new CongressAdministratorEntity());
 
         // Act
-        CongressResponse result = congressService.updateCongress(congressId, request);
+        congressService.addAdministrator(congressId, userId);
 
-        // Assert - Debe permitir actualizar si el precio no cambia
-        assertNotNull(result);
-        verify(congressRepository).save(any());
-    }*/
+        // Assert
+        verify(congressAdminService).assignAdministratorToCongress(userId, congress);
+    }
+
+    @Test
+    void testAddAdministrator_whenCongressNotActive_shouldThrowException() throws NotFoundException, BusinessRuleException {
+        // Arrange
+        Long congressId = 1L;
+        Long userId = 1L;
+        CongressEntity congress = createCongress(congressId, "Congress", false);
+
+        when(congressRepository.findById(congressId)).thenReturn(Optional.of(congress));
+
+        // Act & Assert
+        BusinessRuleException exception = assertThrows(
+                BusinessRuleException.class,
+                () -> congressService.addAdministrator(congressId, userId)
+        );
+
+        assertEquals("Congress is not active", exception.getMessage());
+        verify(congressAdminService, never()).assignAdministratorToCongress(anyLong(), any());
+    }
+
+    @Test
+    void testAddAdministrator_whenUserNotAdminOfInstitution_shouldThrowException() throws NotFoundException, BusinessRuleException {
+        // Arrange
+        Long congressId = 1L;
+        Long userId = 1L;
+        CongressEntity congress = createCongress(congressId, "Congress", true);
+
+        when(congressRepository.findById(congressId)).thenReturn(Optional.of(congress));
+        when(institutionAdminService.isUserAdminOfInstitution(userId, congress.getInstitution().getIdInstitution()))
+                .thenReturn(false);
+
+        // Act & Assert
+        BusinessRuleException exception = assertThrows(
+                BusinessRuleException.class,
+                () -> congressService.addAdministrator(congressId, userId)
+        );
+
+        assertEquals("User does not belong to the institution", exception.getMessage());
+        verify(congressAdminService, never()).assignAdministratorToCongress(anyLong(), any());
+    }
+
+    @Test
+    void testRemoveAdministrator_success() throws Exception {
+        // Arrange
+        Long congressId = 1L;
+        Long userId = 1L;
+        CongressEntity congress = createCongress(congressId, "Congress", true);
+
+        when(congressRepository.findById(congressId)).thenReturn(Optional.of(congress));
+
+        // Act
+        congressService.removeAdministrator(congressId, userId);
+
+        // Assert
+        verify(congressAdminService).removeAdministratorFromCongress(userId, congress);
+    }
 
     // ---------------------- FIND CONGRESS BY ID TESTS --------------
 
@@ -440,41 +495,7 @@ class CongressServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
-    // ----------------- GET CONGRESSES BY ADMIN TESTS --------------
 
-    @Test
-    void testGetCongressesByAdmin_success() throws NotFoundException {
-        // Arrange
-        Long userId = 1L;
-        List<CongressEntity> congresses = Arrays.asList(
-                createCongress(1L, "Congress 1", true),
-                createCongress(2L, "Congress 2", true)
-        );
-
-        when(congressAdminService.getCongressesByAdministrator(userId)).thenReturn(congresses);
-
-        // Act
-        List<CongressResponse> result = congressService.getCongressesByAdmin(userId);
-
-        // Assert
-        assertEquals(2, result.size());
-        verify(congressAdminService).getCongressesByAdministrator(userId);
-    }
-
-    @Test
-    void testGetCongressesByAdmin_whenUserNotFound_shouldThrowException() throws NotFoundException {
-        // Arrange
-        Long userId = 999L;
-
-        when(congressAdminService.getCongressesByAdministrator(userId))
-                .thenThrow(new NotFoundException("No congresses found for user"));
-
-        // Act & Assert
-        assertThrows(
-                NotFoundException.class,
-                () -> congressService.getCongressesByAdmin(userId)
-        );
-    }
 
     // ---------------- HELPER METHODS -------------------
 

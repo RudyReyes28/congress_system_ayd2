@@ -1,5 +1,7 @@
 package com.alessandro.congress_management.services.institution_administrator;
 import com.alessandro.congress_management.dto.institution_administrator.CreateInstitutionAdministratorRequest;
+import com.alessandro.congress_management.dto.institution_administrator.InstitutionNameRequest;
+import com.alessandro.congress_management.dto.institution_administrator.UserInstitutionResponse;
 import com.alessandro.congress_management.exceptions.NotFoundException;
 import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -345,6 +348,70 @@ class InstitutionAdministratorServiceImplTest {
         verify(institutionAdministratorRepository).findByUser_IdUser(adminId);
     }
 
+    // --------------------- TEST IS USER ADMIN OF INSTITUTION -------------------
+    @Test
+    void testIsUserAdminOfInstitution_success() throws NotFoundException {
+        // Arrange
+        Long userId = 1L;
+        Long institutionId = 2L;
+
+        when(institutionAdministratorRepository.existsByUser_IdUserAndInstitution_IdInstitution(userId, institutionId))
+                .thenReturn(true);
+
+        // Act
+        boolean result = institutionAdministratorService.isUserAdminOfInstitution(userId, institutionId);
+
+        // Assert
+        assertTrue(result, "El usuario debería ser admin de la institución");
+        verify(institutionAdministratorRepository).existsByUser_IdUserAndInstitution_IdInstitution(userId, institutionId);
+    }
+
+    @Test
+    void testIsUserAdminOfInstitution_whenNotAdmin_shouldReturnFalse() throws NotFoundException {
+        // Arrange
+        Long userId = 1L;
+        Long institutionId = 2L;
+
+        when(institutionAdministratorRepository.existsByUser_IdUserAndInstitution_IdInstitution(userId, institutionId))
+                .thenReturn(false);
+
+        // Act
+        boolean result = institutionAdministratorService.isUserAdminOfInstitution(userId, institutionId);
+
+        // Assert
+        assertFalse(result, "El usuario no debería ser admin de la institución");
+        verify(institutionAdministratorRepository).existsByUser_IdUserAndInstitution_IdInstitution(userId, institutionId);
+    }
+
+    // ---------------------- TEST GET ADMINISTRATOR BY INSTITUTION -------------------
+    @Test
+    void testGetAdministratorsByInstitution_success() throws NotFoundException {
+        // Arrange
+        String institutionName = "USAC";
+        InstitutionEntity institution = createInstitution(1L, institutionName);
+        InstitutionAdministratorEntity institutionAdmin = createInstitutionAdmin(1L, institution, createUser(1L, "admin_congress", "ADMIN_CONGRESS"));
+
+        when(institutionAdministratorRepository.findByInstitution_InstitutionName(institutionName))
+                .thenReturn(List.of(institutionAdmin));
+
+        // Act
+        List<UserInstitutionResponse> result = institutionAdministratorService.getAdministratorsByInstitution(new InstitutionNameRequest(institutionName));
+
+        // Assert
+        assertAll(
+                () -> assertNotNull(result, "Result no debe ser null"),
+                () -> assertEquals(1, result.size(), "Debe haber un administrador en la lista"),
+                () -> assertEquals(institutionAdmin.getUser().getIdUser(), result.get(0).getIdUser(),
+                        "ID de usuario debe coincidir"),
+                () -> assertEquals(institutionAdmin.getUser().getUsername(), result.get(0).getUsername(),
+                        "Username debe coincidir"),
+                () -> assertEquals(institutionAdmin.getInstitution().getInstitutionName(),
+                        result.get(0).getInstitutionName(),
+                        "Nombre de institución debe coincidir")
+        );
+    }
+
+
     // --------------------- METODOS AUXILIARES -------------------
 
     private InstitutionEntity createInstitution(Long id, String name) {
@@ -378,5 +445,13 @@ class InstitutionAdministratorServiceImplTest {
         user.setRole(role);
 
         return user;
+    }
+
+    private InstitutionAdministratorEntity createInstitutionAdmin(Long id, InstitutionEntity institution, UserEntity user) {
+        InstitutionAdministratorEntity admin = new InstitutionAdministratorEntity();
+        admin.setIdInstitutionAdmin(id);
+        admin.setInstitution(institution);
+        admin.setUser(user);
+        return admin;
     }
 }

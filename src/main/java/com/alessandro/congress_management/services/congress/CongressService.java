@@ -24,6 +24,10 @@ public interface CongressService {
     //Congresses por general public
     List<CongressResponse> getActiveCongresses();
 
-    //Congresses for admin of the congress
-    List<CongressResponse> getCongressesByAdmin(Long idUser) throws NotFoundException;
+    //Add admin to congress
+    void addAdministrator(Long congressId, Long userId) throws NotFoundException, BusinessRuleException;
+
+    //Remove admin from congress
+    void removeAdministrator(Long congressId, Long userId) throws NotFoundException, BusinessRuleException;
+
 }
