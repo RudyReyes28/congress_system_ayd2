@@ -27,7 +27,7 @@ public class CongressServiceImpl implements CongressService{
     private final CongressAdministratorService congressAdminService;
     private final RegistrationRepository registrationRepository;
 
-    public CongressServiceImpl(CongressRepository congressRepository, InstitutionAdministratorService institutionAdminService, CongressAdministratorService congressAdminService, RegistrationRepository registrationRepository) {
+    public CongressServiceImpl(CongressRepository congressRepository, InstitutionAdministratorService institutionAdminService, CongressAdministratorService congressAdminService, RegistrationRepository registrationRepository, InstitutionAdministratorService institutionAdministratorService) {
         this.congressRepository = congressRepository;
         this.institutionAdminService = institutionAdminService;
         this.congressAdminService = congressAdminService;
@@ -60,7 +60,7 @@ public class CongressServiceImpl implements CongressService{
         CongressEntity savedCongress = congressRepository.save(congress);
 
         //Asignar el administrador al congreso
-        congressAdminService.assignAdministratorToCongress(request.getIdCongressManager(), savedCongress.getIdCongress());
+        congressAdminService.assignAdministratorToCongress(request.getIdCongressManager(),savedCongress);
 
         return CongressResponse.fromEntity(savedCongress);
     }
@@ -112,11 +112,28 @@ public class CongressServiceImpl implements CongressService{
                 .toList();
     }
 
+
+    @Transactional
+    public void addAdministrator(Long congressId, Long userId) throws NotFoundException, BusinessRuleException {
+
+        CongressEntity congress = findCongressEntityById(congressId);
+
+        if (!congress.getIsActive()) {
+            throw new BusinessRuleException("Congress is not active");
+        }
+
+        if (!institutionAdminService
+                .isUserAdminOfInstitution(userId, congress.getInstitution().getIdInstitution())) {
+            throw new BusinessRuleException("User does not belong to the institution");
+        }
+
+        congressAdminService.assignAdministratorToCongress(userId, congress);
+    }
+
     @Override
-    public List<CongressResponse> getCongressesByAdmin(Long idUser) throws NotFoundException {
-        List<CongressEntity> congresses = congressAdminService.getCongressesByAdministrator(idUser);
-        return congresses.stream()
-                .map(CongressResponse::fromEntity)
-                .toList();
+    public void removeAdministrator(Long congressId, Long userId) throws NotFoundException, BusinessRuleException {
+        CongressEntity congress = findCongressEntityById(congressId);
+
+        congressAdminService.removeAdministratorFromCongress(userId, congress);
     }
 }

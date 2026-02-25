@@ -213,62 +213,45 @@ class CongressControllerTest {
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
-    // ---------------- GET CONGRESSES BY ADMIN TESTS --------------
-
+    //----------------- ADD ADMINISTRATOR TO CONGRESS TESTS ---------------------
     @Test
     @WithMockUser(roles = "ADMIN_CONGRESS")
-    void testGetCongressesByAdmin_success() throws Exception {
+    void testAddAdministratorToCongress_success() throws Exception {
         // Arrange
-        Long userId = 1L;
-        List<CongressResponse> congresses = Arrays.asList(
-                createCongressResponse(1L, "Congress 1", true),
-                createCongressResponse(2L, "Congress 2", true)
-        );
+        Long congressId = 1L;
+        Long userId = 2L;
 
-        when(congressService.getCongressesByAdmin(userId)).thenReturn(congresses);
+        doNothing().when(congressService).addAdministrator(congressId, userId);
 
         // Act & Assert
-        mockMvc.perform(get("/api/v1/congresses/admin/{idUser}", userId)
+        mockMvc.perform(post("/api/v1/congresses/{idCongress}/administrators/{idUser}", congressId, userId)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].congressName").value("Congress 1"))
-                .andExpect(jsonPath("$[1].congressName").value("Congress 2"));
+                .andExpect(status().isOk());
 
-        verify(congressService).getCongressesByAdmin(userId);
+        verify(congressService).addAdministrator(congressId, userId);
     }
 
+    //----------------- REMOVE ADMINISTRATOR FROM CONGRESS TESTS ---------------------
     @Test
     @WithMockUser(roles = "ADMIN_CONGRESS")
-    void testGetCongressesByAdmin_whenNoCongressesFound_shouldReturn404() throws Exception {
+    void testRemoveAdministratorFromCongress_success() throws Exception {
         // Arrange
-        Long userId = 999L;
+        Long congressId = 1L;
+        Long userId = 2L;
 
-        when(congressService.getCongressesByAdmin(userId))
-                .thenThrow(new NotFoundException("No congresses found for user with id: " + userId));
-
+        doNothing().when(congressService).removeAdministrator(congressId, userId);
         // Act & Assert
-        mockMvc.perform(get("/api/v1/congresses/admin/{idUser}", userId)
+        mockMvc.perform(delete("/api/v1/congresses/{idCongress}/administrators/{idUser}", congressId, userId)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
 
-        verify(congressService).getCongressesByAdmin(userId);
+        verify(congressService).removeAdministrator(congressId, userId);
     }
 
-    @Test
-    @WithMockUser(roles = "ADMIN_CONGRESS")
-    void testGetCongressesByAdmin_whenEmpty_shouldReturnEmptyList() throws Exception {
-        // Arrange
-        Long userId = 1L;
 
-        when(congressService.getCongressesByAdmin(userId)).thenReturn(Arrays.asList());
 
-        // Act & Assert
-        mockMvc.perform(get("/api/v1/congresses/admin/{idUser}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
 
     // -----------------HELPER METHODS---------------------
 
