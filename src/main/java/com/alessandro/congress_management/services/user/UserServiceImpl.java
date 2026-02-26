@@ -72,6 +72,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserEntity> findActiveUsers() {
+        return userRepository.findByIsActiveTrue();
+    }
+
+    @Override
     public void setUserActiveStatus(Long idUser, boolean isActive) throws NotFoundException {
         UserEntity user = userRepository.findById(idUser)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado "));

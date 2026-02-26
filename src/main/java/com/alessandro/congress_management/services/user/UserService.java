@@ -19,6 +19,8 @@ public interface UserService {
     //List all users
     List<UserEntity> getAllUsers() ;
 
+    List<UserEntity> findActiveUsers();
+
     //Activate and deactivate user
     void setUserActiveStatus(Long idUser, boolean isActive) throws NotFoundException;
 
