@@ -4,6 +4,7 @@ import com.alessandro.congress_management.models.authentication_and_users.UserEn
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -29,4 +30,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByIdentificationNumberAndIdUserNot(String identificationNumber, Long currentUserId);
 
     int countByRole_RoleNameAndIsActive(String adminRoleName, boolean b);
+
+    List<UserEntity> findByIsActiveTrue();
 }

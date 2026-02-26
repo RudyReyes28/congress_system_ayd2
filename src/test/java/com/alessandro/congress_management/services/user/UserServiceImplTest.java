@@ -530,6 +530,45 @@ public class UserServiceImplTest {
         assertNotEquals(rawPassword, userCaptor.getValue().getPassword());
     }
 
+    //-------------- TESTS FOR FIND ACTIVE USERS --------------------
+    @Test
+    void testFindActiveUsers_shouldReturnOnlyActiveUsers() {
+        //Arrange
+        UserEntity activeUser1 = createUser(1L, "activeUser1");
+        activeUser1.setIsActive(true);
+        UserEntity activeUser2 = createUser(2L, "activeUser2");
+        activeUser2.setIsActive(true);
+        UserEntity inactiveUser = createUser(3L, "inactiveUser");
+        inactiveUser.setIsActive(false);
+
+        when(userRepository.findByIsActiveTrue()).thenReturn(Arrays.asList(activeUser1, activeUser2));
+
+        //Act
+        List<UserEntity> result = userService.findActiveUsers();
+        //Assert
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(2, result.size()),
+                () -> assertTrue(result.stream().anyMatch(u -> u.getUsername().equals("activeUser1")), "Debe contener activeUser1"),
+                () -> assertTrue(result.stream().anyMatch(u -> u.getUsername().equals("activeUser2")), "Debe contener activeUser2")
+        );
+        verify(userRepository).findByIsActiveTrue();
+    }
+
+    @Test
+    void testFindActiveUsers_whenNoActiveUsers_shouldReturnEmptyList() {
+        //Arrange
+        when(userRepository.findByIsActiveTrue()).thenReturn(Arrays.asList());
+
+        //Act
+        List<UserEntity> result = userService.findActiveUsers();
+
+        //Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "La lista de usuarios activos debe estar vacía");
+        verify(userRepository).findByIsActiveTrue();
+    }
+
     // ---------------------- HELPER METHODS --------------------
 
     private CreateUserCommand createUserCommand() {
