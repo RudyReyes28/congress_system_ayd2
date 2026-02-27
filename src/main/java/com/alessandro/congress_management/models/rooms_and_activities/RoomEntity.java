@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "Room")
 @Table(name = "room")
@@ -37,11 +38,11 @@ public class RoomEntity {
     private String description;
 
     @Column(name = "is_active")
-    private Boolean isActive;
+    private Boolean isActive = true;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }
