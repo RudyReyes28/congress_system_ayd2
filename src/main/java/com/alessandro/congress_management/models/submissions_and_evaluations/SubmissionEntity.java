@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "Submission")
 @Table(name = "submission")
@@ -44,9 +45,9 @@ public class SubmissionEntity {
     private String fileUrl;
 
     @Column(name = "submitted_at")
-    private Timestamp submittedAt;
+    private LocalDateTime submittedAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
 }
