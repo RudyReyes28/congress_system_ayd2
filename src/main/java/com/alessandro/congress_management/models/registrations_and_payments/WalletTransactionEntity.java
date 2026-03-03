@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "WalletTransaction")
 @Table(name = "wallet_transaction")
@@ -37,8 +38,8 @@ public class WalletTransactionEntity {
     private RegistrationEntity relatedRegistration;
 
     @Column(name = "transaction_date", nullable = false)
-    private Timestamp transactionDate;
+    private LocalDateTime transactionDate;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt  = LocalDateTime.now();
 }

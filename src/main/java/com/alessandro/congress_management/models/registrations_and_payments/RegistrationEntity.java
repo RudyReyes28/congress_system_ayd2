@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "Registration")
 @Table(name = "registration")
@@ -31,9 +32,9 @@ public class RegistrationEntity {
     private BigDecimal amountPaid;
 
     @Column(name = "registration_date", nullable = false)
-    private Timestamp registrationDate;
+    private LocalDateTime registrationDate;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
 }

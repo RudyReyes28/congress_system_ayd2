@@ -50,6 +50,11 @@ public class ActivityServiceImpl implements ActivityService {
         // Validamos que la sala exista
         RoomEntity roomEntity = roomService.findRoomById(request.getRoomId());
 
+        //Validamos que la fecha de la actividad este dentro de las fechas del congreso
+        if(request.getStartTime().isBefore(congress.getStartDate().atStartOfDay()) || request.getEndTime().isAfter(congress.getEndDate().atStartOfDay())) {
+            throw new BusinessRuleException("Activity times must be within the congress dates (" + congress.getStartDate() + " to " + congress.getEndDate() + ").");
+        }
+
         //Validamos las fechas de la actividad
         if(request.getStartTime().isAfter(request.getEndTime())) {
             throw new BusinessRuleException("The start time must be before the end time.");

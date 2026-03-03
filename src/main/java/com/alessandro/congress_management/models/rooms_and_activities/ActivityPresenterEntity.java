@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "ActivityPresenter")
 @Table(name = "activity_presenter")
@@ -29,6 +30,9 @@ public class ActivityPresenterEntity {
     private Boolean isInvitedSpeaker;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "is_main_author")
+    private Boolean isMainAuthor = false;
 
 }

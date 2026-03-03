@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "CallForPapers")
 @Table(name = "call_for_papers")
@@ -28,17 +29,17 @@ public class CallForPapersEntity {
     private String description;
 
     @Column(name = "open_date")
-    private Timestamp openDate;
+    private LocalDateTime openDate;
 
     @Column(name = "close_date")
-    private Timestamp closeDate;
+    private LocalDateTime closeDate;
 
     @Column(name = "is_open")
-    private Boolean isOpen;
+    private Boolean isOpen = true;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

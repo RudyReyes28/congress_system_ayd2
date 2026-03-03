@@ -223,6 +223,37 @@ public class ActivityServiceImplTest {
         verify(activityRepository, never()).save(any(ActivityEntity.class));
     }
 
+    @Test
+    void testCreateActivity_dateActivityOutsideCongressDates() throws NotFoundException {
+        // Arrange
+        Long congressId = 1L;
+        Long roomId = 1L;
+        Integer activityTypeId = 1; // TALLER
+        CreateActivityRequest request = new CreateActivityRequest(
+                roomId,
+                activityTypeId,
+                "Activity Name",
+                "Activity Description",
+                LocalDate.now().plusDays(10).atStartOfDay(), // Start time after congress end date
+                LocalDate.now().plusDays(11).atStartOfDay(),
+                50
+        );
+
+        CongressEntity congress = createCongress(congressId, "Tech Congress", true);
+        congress.setStartDate(LocalDate.now().plusDays(1));
+        congress.setEndDate(LocalDate.now().plusDays(5));
+
+        when(congressService.findCongressEntityById(congressId)).thenReturn(congress);
+
+        // Act & Assert
+        BusinessRuleException exception = assertThrows(BusinessRuleException.class, () -> {
+            activityService.createActivity(congressId, request);
+        });
+
+        assertEquals("Activity times must be within the congress dates (" + congress.getStartDate() + " to " + congress.getEndDate() + ").", exception.getMessage());
+        verify(activityRepository, never()).save(any(ActivityEntity.class));
+    }
+
     //------------- TESTS UPDATE ACTIVITY -------------------
     @Test
     public void testUpdateActivity_Success() throws BusinessRuleException, NotFoundException {
@@ -658,8 +689,8 @@ public class ActivityServiceImplTest {
         congress.setIdCongress(id);
         congress.setCongressName(name);
         congress.setDescription("Description for " + name);
-        congress.setStartDate(LocalDate.of(2026, 5, 15));
-        congress.setEndDate(LocalDate.of(2026, 5, 17));
+        congress.setStartDate(LocalDate.of(2026, 2, 15));
+        congress.setEndDate(LocalDate.of(2026, 4, 17));
         congress.setLocation("Guatemala City");
         congress.setPrice(new BigDecimal("150.00"));
         congress.setIsActive(isActive);
