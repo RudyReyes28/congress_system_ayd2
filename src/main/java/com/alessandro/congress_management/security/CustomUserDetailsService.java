@@ -43,15 +43,16 @@ public class CustomUserDetailsService implements UserDetailsService {
         Collection<GrantedAuthority> authorities = getAuthorities(user);
 
         // Convertir a UserDetails de Spring Security CON ROLES
-        return User.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .authorities(authorities)  // ← AQUÍ SE AGREGAN LOS ROLES
-                .accountExpired(false)
-                .accountLocked(!user.getIsActive())
-                .credentialsExpired(false)
-                .disabled(!user.getIsActive())
-                .build();
+        return new CustomUserDetails(
+                user.getIdUser(),           // ← ID DEL USUARIO
+                user.getUsername(),
+                user.getPassword(),
+                true,                        // enabled
+                true,                        // accountNonExpired
+                true,                        // credentialsNonExpired
+                true,                        // accountNonLocked
+                getAuthorities(user)
+        );
     }
 
 

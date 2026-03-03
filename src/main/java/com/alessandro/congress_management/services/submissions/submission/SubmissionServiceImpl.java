@@ -54,7 +54,7 @@ public class SubmissionServiceImpl implements SubmissionService{
         SubmissionStatusEntity pending = findStatus(STATUS_PENDING);
 
         // Verificar que el usuario este registrado en el congreso asociado a la convocatoria
-        if (!registrationRepository.existsByUser_IdUserAndCongress_IdCongress(idUser, call.getCongress().getIdCongress())) {
+        if (registrationRepository.existsByUser_IdUserAndCongress_IdCongress(idUser, call.getCongress().getIdCongress())) {
             throw new BusinessRuleException("You must be registered for the congress to submit a paper.");
         }
 

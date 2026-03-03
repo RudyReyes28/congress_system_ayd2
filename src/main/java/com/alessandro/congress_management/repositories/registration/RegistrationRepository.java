@@ -22,4 +22,8 @@ public interface RegistrationRepository extends JpaRepository<RegistrationEntity
     List<UserEntity> findActiveUsersByCongressId(@Param("congressId") Long congressId);
 
     boolean existsByUser_IdUserAndCongress_IdCongress(Long idUser, Long idCongress);
+
+    List<RegistrationEntity> findByUser_IdUser(Long userId);
+
+    List<RegistrationEntity> findByCongress_IdCongress(Long congressId);
 }

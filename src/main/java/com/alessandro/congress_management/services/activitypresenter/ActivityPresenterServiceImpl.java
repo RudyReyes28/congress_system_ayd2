@@ -46,7 +46,7 @@ public class ActivityPresenterServiceImpl implements ActivityPresenterService {
             throw new BusinessRuleException("User is not active. Cannot be assigned as presenter.");
         }
         //Validar que el usuario esté registrado en el congreso o que no sea un usuario invitado (si es invitado no es necesario que esté registrado en el congreso)
-        if (!registrationRepository.existsByUser_IdUserAndCongress_IdCongress(request.getIdUser(), activity.getCongress().getIdCongress()) && !request.getInvitedSpeaker()) {
+        if (registrationRepository.existsByUser_IdUserAndCongress_IdCongress(request.getIdUser(), activity.getCongress().getIdCongress()) && !request.getInvitedSpeaker()) {
             throw new BusinessRuleException("User is not registered for the congress. Only registered users can be assigned as presenters unless they are invited speakers.");
         }
 
@@ -140,7 +140,7 @@ public class ActivityPresenterServiceImpl implements ActivityPresenterService {
         ActivityEntity activity = activityService.getActivityById(activityId);
         //Obtener los usuarios invitados que no están registrados en el congreso (todos los usuarios que no están registrados en el congreso son elegibles para ser invitados)
         List<UserEntity> invitedUsers = userService.getAllUsers().stream()
-                .filter(user -> !registrationRepository.existsByUser_IdUserAndCongress_IdCongress(user.getIdUser(), activity.getCongress().getIdCongress()))
+                .filter(user -> registrationRepository.existsByUser_IdUserAndCongress_IdCongress(user.getIdUser(), activity.getCongress().getIdCongress()))
                 //Filtrar los usuarios que no son presentadores de la actividad
                 .filter(user -> !activityPresenterRepository.existsByActivity_IdActivityAndUser_IdUser(activityId, user.getIdUser()))
                 .toList();
