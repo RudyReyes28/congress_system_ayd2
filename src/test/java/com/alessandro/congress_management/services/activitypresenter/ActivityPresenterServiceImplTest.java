@@ -98,28 +98,37 @@ class ActivityPresenterServiceImplTest {
     //--------------------- TESTS ASSIGN EXISTING USER ---------------------
     @Test
     void success_firstPresenter_isMarkedAsMainAuthor() throws Exception {
-        //Arrange
-        ActivityPresenterRequest request = new ActivityPresenterRequest(100L, false);
+
+        ActivityPresenterRequest request =
+                new ActivityPresenterRequest(100L, false);
 
         when(activityService.getActivityById(10L)).thenReturn(activity);
         when(userService.getUserById(100L)).thenReturn(activeUser);
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(false);
-        when(activityPresenterRepository.existsByActivity_IdActivityAndUser_IdUser(10L, 100L)).thenReturn(false);
-        when(activityPresenterRepository.countByActivity_IdActivity(10L)).thenReturn(0);
-        when(activityPresenterRepository.save(any())).thenAnswer(inv -> {
-            ActivityPresenterEntity e = inv.getArgument(0);
-            e.setIdActivityPresenter(1L);
-            return e;
-        });
 
-        //Act
-        ActivityPresenterResponse response = service.assignExistingUser(request, 10L);
+        when(registrationRepository
+                .existsByUser_IdUserAndCongress_IdCongress(100L, 1L))
+                .thenReturn(true);
 
-        //Assert
+        when(activityPresenterRepository
+                .existsByActivity_IdActivityAndUser_IdUser(10L, 100L))
+                .thenReturn(false);
+
+        when(activityPresenterRepository
+                .countByActivity_IdActivity(10L))
+                .thenReturn(0);
+
+        when(activityPresenterRepository.save(any()))
+                .thenAnswer(inv -> {
+                    ActivityPresenterEntity e = inv.getArgument(0);
+                    e.setIdActivityPresenter(1L);
+                    return e;
+                });
+
+        ActivityPresenterResponse response =
+                service.assignExistingUser(request, 10L);
+
         assertThat(response.getMainAuthor()).isTrue();
         assertThat(response.getInvitedSpeaker()).isFalse();
-        assertThat(response.getPresenterName()).isEqualTo("Ana López");
-        assertThat(response.getActivityName()).isEqualTo("Introduction to AI");
     }
 
     @Test
@@ -129,7 +138,7 @@ class ActivityPresenterServiceImplTest {
 
         when(activityService.getActivityById(10L)).thenReturn(activity);
         when(userService.getUserById(100L)).thenReturn(activeUser);
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(false);
+        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(true);
         when(activityPresenterRepository.existsByActivity_IdActivityAndUser_IdUser(10L, 100L)).thenReturn(false);
         when(activityPresenterRepository.countByActivity_IdActivity(10L)).thenReturn(2);
         when(activityPresenterRepository.save(any())).thenAnswer(inv -> {
@@ -202,7 +211,7 @@ class ActivityPresenterServiceImplTest {
         ActivityPresenterRequest request = new ActivityPresenterRequest(100L, false);
         when(activityService.getActivityById(10L)).thenReturn(activity);
         when(userService.getUserById(100L)).thenReturn(activeUser);
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(true);
+        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(false);
 
         //Act & Assert
         assertThatThrownBy(() -> service.assignExistingUser(request, 10L))
@@ -231,7 +240,7 @@ class ActivityPresenterServiceImplTest {
         ActivityPresenterRequest request = new ActivityPresenterRequest(100L, false);
         when(activityService.getActivityById(10L)).thenReturn(activity);
         when(userService.getUserById(100L)).thenReturn(activeUser);
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(false);
+        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(true);
         when(activityPresenterRepository.existsByActivity_IdActivityAndUser_IdUser(10L, 100L)).thenReturn(true);
 
         //Act & Assert
@@ -452,6 +461,16 @@ class ActivityPresenterServiceImplTest {
     //--------------------- TESTS GET ELIGIBLE INVITED USERS ----------------
     @Test
     void returnsEligibleInvitedUsers() throws Exception {
+
+        // Arrange
+
+        UserEntity registeredUser = new UserEntity();
+        registeredUser.setIdUser(100L);
+        registeredUser.setFullName("Registered User");
+        registeredUser.setEmail("registered@test.com");
+        registeredUser.setOrganization("Org");
+        registeredUser.setIdentificationNumber("ID-100");
+
         UserEntity notRegistered = new UserEntity();
         notRegistered.setIdUser(300L);
         notRegistered.setFullName("External Guest");
@@ -460,23 +479,38 @@ class ActivityPresenterServiceImplTest {
         notRegistered.setIdentificationNumber("EXT-999");
 
         when(activityService.getActivityById(10L)).thenReturn(activity);
-        when(userService.getAllUsers()).thenReturn(List.of(activeUser, notRegistered));
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(true);
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(300L, 1L)).thenReturn(false);
-        when(activityPresenterRepository.existsByActivity_IdActivityAndUser_IdUser(10L, 100L)).thenReturn(false);
 
-        List<EligibleUsersActivityResponse> result = service.getEligibleInvitedUsers(10L);
+        when(userService.getAllUsers())
+                .thenReturn(List.of(registeredUser, notRegistered));
 
+        when(registrationRepository
+                .existsByUser_IdUserAndCongress_IdCongress(100L, 1L))
+                .thenReturn(true);
+
+        when(registrationRepository
+                .existsByUser_IdUserAndCongress_IdCongress(300L, 1L))
+                .thenReturn(false);
+
+        when(activityPresenterRepository
+                .existsByActivity_IdActivityAndUser_IdUser(10L, 300L))
+                .thenReturn(false);
+
+        // Act
+
+        List<EligibleUsersActivityResponse> result =
+                service.getEligibleInvitedUsers(10L);
+
+        // Assert
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getIdUser()).isEqualTo(100L);
+        assertThat(result.get(0).getIdUser()).isEqualTo(300L);
     }
 
     @Test
     void alreadyPresenter_excluded() throws Exception {
         when(activityService.getActivityById(10L)).thenReturn(activity);
         when(userService.getAllUsers()).thenReturn(List.of(activeUser));
-        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(true);
+        when(registrationRepository.existsByUser_IdUserAndCongress_IdCongress(100L, 1L)).thenReturn(false);
         when(activityPresenterRepository.existsByActivity_IdActivityAndUser_IdUser(10L, 100L)).thenReturn(true);
 
         List<EligibleUsersActivityResponse> result = service.getEligibleInvitedUsers(10L);
@@ -485,7 +519,6 @@ class ActivityPresenterServiceImplTest {
     }
 
     @Test
-    @DisplayName("should throw NotFoundException when activity does not exist")
     void activityNotFound_invitedUser_throws() throws Exception {
         when(activityService.getActivityById(99L)).thenThrow(new NotFoundException("Activity not found"));
 

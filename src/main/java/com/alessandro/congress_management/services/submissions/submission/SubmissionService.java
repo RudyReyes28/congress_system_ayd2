@@ -1,5 +1,6 @@
 package com.alessandro.congress_management.services.submissions.submission;
 
+import com.alessandro.congress_management.dto.submissions.submission.SubmissionDetails;
 import com.alessandro.congress_management.dto.submissions.submission.SubmissionRequest;
 import com.alessandro.congress_management.dto.submissions.submission.SubmissionResponse;
 import com.alessandro.congress_management.exceptions.BusinessRuleException;
@@ -22,6 +23,6 @@ public interface SubmissionService {
     List<SubmissionResponse> getSubmissionsByCall(Long idCall) throws NotFoundException;
 
 
-    List<SubmissionResponse> getSubmissionsByUser(Long idUser) throws NotFoundException;
+    List<SubmissionDetails> getSubmissionsByUser(Long idUser) throws NotFoundException;
 
 }

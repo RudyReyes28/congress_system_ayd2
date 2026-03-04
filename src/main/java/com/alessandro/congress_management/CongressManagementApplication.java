@@ -23,6 +23,10 @@ public class CongressManagementApplication {
         System.setProperty("AWS_REGION", dotenv.get("AWS_REGION"));
         System.setProperty("AWS_S3_BUCKET_NAME", dotenv.get("AWS_S3_BUCKET_NAME"));
 
+        System.setProperty("MAIL_USERNAME", dotenv.get("MAIL_USERNAME"));
+        System.setProperty("MAIL_APP_PASSWORD", dotenv.get("MAIL_APP_PASSWORD"));
+        System.setProperty("MAIL_FROM_NAME", dotenv.get("MAIL_FROM_NAME"));
+
 		SpringApplication.run(CongressManagementApplication.class, args);
 	}
 
