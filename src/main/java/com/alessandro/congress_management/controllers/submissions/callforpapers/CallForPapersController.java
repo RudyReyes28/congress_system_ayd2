@@ -6,6 +6,7 @@ import com.alessandro.congress_management.dto.submissions.callforpapers.CallForP
 import com.alessandro.congress_management.dto.submissions.callforpapers.CallForPapersResponse;
 import com.alessandro.congress_management.exceptions.BusinessRuleException;
 import com.alessandro.congress_management.exceptions.NotFoundException;
+import com.alessandro.congress_management.security.SecurityUtils;
 import com.alessandro.congress_management.services.submissions.callforpapers.CallForPapersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -70,7 +71,7 @@ public class CallForPapersController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/admin-congress/{idAdminCongress}/call-for-papers")
+    @GetMapping("/admin-congress/call-for-papers")
     @PreAuthorize("hasRole('ADMIN_CONGRESS')")
     @Operation(summary = "Get all call for papers by congress", description = "Retrieves a list of all call for papers for a specific congress. Only administrators can access this endpoint.")
     @ApiResponses(value = {
@@ -78,8 +79,10 @@ public class CallForPapersController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Congress not found")
     })
-    public ResponseEntity<List<CallForPapersDetailsResponse>> getAllCallForPapersByAdminCongress(@PathVariable Long idAdminCongress) throws NotFoundException {
-        return ResponseEntity.ok(callForPapersService.getAllCallForPapersByAdminCongress(idAdminCongress));
+    public ResponseEntity<List<CallForPapersDetailsResponse>> getAllCallForPapersByAdminCongress() throws NotFoundException {
+        Long idUser = SecurityUtils.getCurrentUserId();
+
+        return ResponseEntity.ok(callForPapersService.getAllCallForPapersByAdminCongress(idUser));
     }
 
     @GetMapping("/{idCongress}/call-for-papers/open")
@@ -92,7 +95,7 @@ public class CallForPapersController {
         return ResponseEntity.ok(callForPapersService.getCallForPapersOpenByCongressId(idCongress));
     }
 
-    @GetMapping("/admin-congress/{idAdminCongress}/eligible-congresses")
+    @GetMapping("/admin-congress/eligible-congresses")
     @PreAuthorize("hasRole('ADMIN_CONGRESS')")
     @Operation(summary = "Get eligible congresses for call for papers", description = "Retrieves a list of congresses that are eligible for creating a call for papers. Only administrators can access this endpoint.")
     @ApiResponses(value = {
@@ -100,7 +103,8 @@ public class CallForPapersController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Admin congress not found")
     })
-    public ResponseEntity<List<CongressResponse>> elegibleCongressesForCallForPapers(@PathVariable Long idAdminCongress) throws NotFoundException {
-        return ResponseEntity.ok(callForPapersService.elegibleCongressesForCallForPapers(idAdminCongress));
+    public ResponseEntity<List<CongressResponse>> elegibleCongressesForCallForPapers() throws NotFoundException {
+        Long idUser = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(callForPapersService.elegibleCongressesForCallForPapers(idUser));
     }
 }

@@ -25,7 +25,6 @@ public class ActivityTypeController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN_CONGRESS', 'ADMIN_SYSTEM')")
     @Operation(summary = "Get all activity types", description = "Retrieves a list of all activity types in the system. Only administrators can access this endpoint.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Activity types retrieved successfully"),

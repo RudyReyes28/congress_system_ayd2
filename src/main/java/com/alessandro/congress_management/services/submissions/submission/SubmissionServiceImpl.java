@@ -1,5 +1,6 @@
 package com.alessandro.congress_management.services.submissions.submission;
 
+import com.alessandro.congress_management.dto.submissions.submission.SubmissionDetails;
 import com.alessandro.congress_management.dto.submissions.submission.SubmissionRequest;
 import com.alessandro.congress_management.dto.submissions.submission.SubmissionResponse;
 import com.alessandro.congress_management.exceptions.BusinessRuleException;
@@ -21,12 +22,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SubmissionServiceImpl implements SubmissionService{
     private static final String STORAGE_FOLDER = "submissions";
-    private static final int STATUS_PENDING  = 1;
-    private static final int STATUS_REJECTED = 3;
+    private static final String STATUS_PENDING  = "PENDING";
+    private static final String STATUS_REJECTED = "REJECTED";
 
     private final SubmissionRepository submissionRepository;
     private final CallForPapersRepository callForPapersRepository;
@@ -54,8 +56,13 @@ public class SubmissionServiceImpl implements SubmissionService{
         SubmissionStatusEntity pending = findStatus(STATUS_PENDING);
 
         // Verificar que el usuario este registrado en el congreso asociado a la convocatoria
-        if (registrationRepository.existsByUser_IdUserAndCongress_IdCongress(idUser, call.getCongress().getIdCongress())) {
+        if (!registrationRepository.existsByUser_IdUserAndCongress_IdCongress(idUser, call.getCongress().getIdCongress())) {
             throw new BusinessRuleException("You must be registered for the congress to submit a paper.");
+        }
+
+        //Verificar que el usuario no tenga ya una submission para esa convocatoria
+        if (submissionRepository.existsByUser_IdUserAndCallForPapers_IdCall(idUser, idCall)) {
+            throw new BusinessRuleException("You have already submitted a paper to this call for papers.");
         }
 
         // Subir el archivo si esta presente y obtener la URL
@@ -104,14 +111,14 @@ public class SubmissionServiceImpl implements SubmissionService{
     }
 
     @Override
-    public List<SubmissionResponse> getSubmissionsByUser(Long idUser) throws NotFoundException {
+    public List<SubmissionDetails> getSubmissionsByUser(Long idUser) throws NotFoundException {
         if (!userRepository.existsById(idUser)) {
             throw new NotFoundException("User not found");
         }
 
         List<SubmissionEntity> submissions = submissionRepository.findByUser_IdUser(idUser);
         return submissions.stream()
-                .map(SubmissionResponse::fromEntity)
+                .map(SubmissionDetails::fromEntity)
                 .toList();
     }
 
@@ -147,8 +154,8 @@ public class SubmissionServiceImpl implements SubmissionService{
                 .orElseThrow(() -> new NotFoundException("Activity type not found"));
     }
 
-    private SubmissionStatusEntity findStatus(int idStatus) throws NotFoundException {
-        return submissionStatusRepository.findById(idStatus)
+    private SubmissionStatusEntity findStatus(String statusName) throws NotFoundException {
+        return submissionStatusRepository.findByStatusName(statusName)
                 .orElseThrow(() -> new NotFoundException("Submission status not found"));
     }
 
@@ -172,7 +179,7 @@ public class SubmissionServiceImpl implements SubmissionService{
     }
 
     private void validateIsRejected(SubmissionEntity submission) throws BusinessRuleException {
-        if (submission.getSubmissionStatus().getIdStatus() != STATUS_REJECTED) {
+        if (!Objects.equals(submission.getSubmissionStatus().getStatusName(), STATUS_REJECTED)) {
             throw new BusinessRuleException("Only rejected submissions can be resubmitted.");
         }
     }

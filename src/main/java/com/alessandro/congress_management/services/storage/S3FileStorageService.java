@@ -48,8 +48,7 @@ public class S3FileStorageService implements FileStorageService {
 
         try {
             ObjectMetadata metadata = buildMetadata(file);
-            PutObjectRequest request = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead);
+            PutObjectRequest request = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata);
 
             amazonS3.putObject(request);
         } catch (IOException e) {

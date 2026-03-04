@@ -14,4 +14,6 @@ public interface SubmissionRepository extends JpaRepository<SubmissionEntity, Lo
     List<SubmissionEntity> findByCallForPapers_IdCall(Long idCall);
 
     List<SubmissionEntity> findByUser_IdUser(Long idUser);
+
+    boolean existsByUser_IdUserAndCallForPapers_IdCall(Long idUser, Long idCall);
 }

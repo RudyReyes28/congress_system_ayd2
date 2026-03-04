@@ -1,10 +1,12 @@
 package com.alessandro.congress_management.controllers.submissions.submission;
 
+import com.alessandro.congress_management.dto.submissions.submission.SubmissionDetails;
 import com.alessandro.congress_management.dto.submissions.submission.SubmissionRequest;
 import com.alessandro.congress_management.dto.submissions.submission.SubmissionResponse;
 import com.alessandro.congress_management.exceptions.BusinessRuleException;
 import com.alessandro.congress_management.exceptions.FileStorageException;
 import com.alessandro.congress_management.exceptions.NotFoundException;
+import com.alessandro.congress_management.security.SecurityUtils;
 import com.alessandro.congress_management.services.submissions.submission.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,7 +32,7 @@ public class SubmissionController {
         this.submissionService = submissionService;
     }
 
-    @PostMapping(value = "/calls/{idCall}/users/{idUser}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/calls/{idCall}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Submit a work to a call for papers",
             description = "Submits a new paper or workshop proposal. The call must be open. File upload is optional."
@@ -43,17 +45,16 @@ public class SubmissionController {
     })
     public ResponseEntity<SubmissionResponse> submit(
             @PathVariable Long idCall,
-            @PathVariable Long idUser,
             @Valid @RequestPart("request") SubmissionRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws NotFoundException, BusinessRuleException, FileStorageException {
+        Long idUser = SecurityUtils.getCurrentUserId();
 
         SubmissionResponse response = submissionService.submit(idCall, idUser, request, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping(value = "/{idSubmission}/users/{idUser}/resubmit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('PARTICIPANT')")
+    @PutMapping(value = "/{idSubmission}/resubmit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Resubmit a rejected work",
             description = "Replaces a rejected submission with a new one. The call must still be open."
@@ -66,17 +67,16 @@ public class SubmissionController {
     })
     public ResponseEntity<SubmissionResponse> resubmit(
             @PathVariable Long idSubmission,
-            @PathVariable Long idUser,
             @Valid @RequestPart("request") SubmissionRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws NotFoundException, BusinessRuleException, FileStorageException {
+        Long idUser = SecurityUtils.getCurrentUserId();
 
         SubmissionResponse response = submissionService.resubmit(idSubmission, idUser, request, file);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/calls/{idCall}")
-    @PreAuthorize("hasRole('ADMIN_CONGRESS')")
     @Operation(
             summary = "Get all submissions for a call",
             description = "Returns all submissions belonging to a specific call for papers. Admin only."
@@ -86,13 +86,11 @@ public class SubmissionController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Call not found")
     })
-    public ResponseEntity<List<SubmissionResponse>> getByCall(
-            @PathVariable Long idCall
-    ) throws NotFoundException {
+    public ResponseEntity<List<SubmissionResponse>> getByCall(@PathVariable Long idCall) throws NotFoundException {
         return ResponseEntity.ok(submissionService.getSubmissionsByCall(idCall));
     }
 
-    @GetMapping("/users/{idUser}")
+    @GetMapping("/me")
     @Operation(
             summary = "Get all submissions by a user",
             description = "Returns every submission made by the given user."
@@ -102,9 +100,8 @@ public class SubmissionController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<List<SubmissionResponse>> getByUser(
-            @PathVariable Long idUser
-    ) throws NotFoundException {
+    public ResponseEntity<List<SubmissionDetails>> getByUser() throws NotFoundException {
+        Long idUser = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(submissionService.getSubmissionsByUser(idUser));
     }
 }

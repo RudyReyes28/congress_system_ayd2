@@ -47,6 +47,12 @@ public class CallForPapersServiceImpl implements CallForPapersService{
         if (!congress.getIsActive()) {
             throw new BusinessRuleException("Congress is not active");
         }
+
+        //Verificar que la fecha de cierre de la convocatoria no sea después de la fecha de finalización del congreso
+        if (request.getCloseDate().isAfter(congress.getEndDate().atStartOfDay())) {
+            throw new BusinessRuleException("Close date must be before congress end date");
+        }
+
         //Verificar que no exista una convocatoria abierta para el congreso
         if (callForPapersRepository.existsByCongress_IdCongressAndIsOpenTrue(congressId)) {
             throw new BusinessRuleException("There is already an open call for papers for this congress");
