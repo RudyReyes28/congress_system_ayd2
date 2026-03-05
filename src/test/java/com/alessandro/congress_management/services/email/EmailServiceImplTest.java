@@ -121,7 +121,6 @@ class EmailServiceImplTest {
     // -------------- TESTS FOR SEND PRESENTER ACCEPTED EMAILS ----------------
 
     @Test
-    @DisplayName("should call mailSender.send() once for a regular presenter")
     void sendPresenterAcceptedEmail_callsSendForRegularPresenter() {
         service.sendPresenterAcceptedEmail(
                 "speaker@mail.com", "Luis Torres", "Tech Congress", "ML Talk", "PONENCIA", false);
@@ -129,7 +128,6 @@ class EmailServiceImplTest {
     }
 
     @Test
-    @DisplayName("should call mailSender.send() once for an invited speaker")
     void sendPresenterAcceptedEmail_callsSendForInvitedSpeaker() {
         service.sendPresenterAcceptedEmail(
                 "guest@mail.com", "Guest User", "Tech Congress", "Keynote", "PONENCIA", true);
@@ -137,7 +135,6 @@ class EmailServiceImplTest {
     }
 
     @Test
-    @DisplayName("should not throw for PONENCIA type")
     void sendPresenterAcceptedEmail_doesNotThrowForPonencia() {
         assertThatNoException().isThrownBy(() ->
                 service.sendPresenterAcceptedEmail(
@@ -146,7 +143,6 @@ class EmailServiceImplTest {
     }
 
     @Test
-    @DisplayName("should not throw for TALLER type")
     void sendPresenterAcceptedEmail_doesNotThrowForTaller() {
         assertThatNoException().isThrownBy(() ->
                 service.sendPresenterAcceptedEmail(
@@ -155,7 +151,6 @@ class EmailServiceImplTest {
     }
 
     @Test
-    @DisplayName("should not propagate exception when mail sender fails")
     void sendPresenterAcceptedEmail_doesNotPropagateException() {
         when(mailSender.createMimeMessage()).thenThrow(new RuntimeException("SMTP error"));
 
@@ -183,5 +178,66 @@ class EmailServiceImplTest {
         service.sendCongressAdminAssignmentEmail("a@b.com", "A", "C");
 
         verify(mailSender, times(2)).createMimeMessage();
+    }
+
+
+    //---------------- TESTS FOR SEND SUBMISSION CANCELLED EMAILS ----------------
+    @Test
+    void sendSubmissionCancelledEmail_callsMailSenderSend() {
+        service.sendSubmissionCancelledEmail(
+                "ana@mail.com", "Ana López", "Tech Congress", "ML Talk", "PONENCIA");
+        verify(mailSender, times(1)).send(mimeMessage);
+    }
+
+    @Test
+    void sendSubmissionCancelledEmail_doesNotThrow() {
+        assertThatNoException().isThrownBy(() ->
+                service.sendSubmissionCancelledEmail(
+                        "ana@mail.com", "Ana", "Congress", "Talk", "PONENCIA")
+        );
+    }
+
+    @Test
+    void sendSubmissionCancelledEmail_doesNotPropagateException() {
+        when(mailSender.createMimeMessage()).thenThrow(new RuntimeException("SMTP error"));
+        assertThatNoException().isThrownBy(() ->
+                service.sendSubmissionCancelledEmail(
+                        "ana@mail.com", "Ana", "Congress", "Talk", "PONENCIA")
+        );
+    }
+
+
+    //---------------- TESTS SEND SUBMISSION EVALUATION EMAILS ----------------
+    @Test
+    void sendSubmissionEvaluationEmail_callsSendWhenAccepted() {
+        service.sendSubmissionEvaluationEmail(
+                "ana@mail.com", "Ana López", "Tech Congress",
+                "ML Talk", "PONENCIA", true, "Great work!");
+        verify(mailSender, times(1)).send(mimeMessage);
+    }
+
+    @Test
+    void sendSubmissionEvaluationEmail_callsSendWhenRejected() {
+        service.sendSubmissionEvaluationEmail(
+                "ana@mail.com", "Ana López", "Tech Congress",
+                "ML Talk", "PONENCIA", false, "Needs improvement.");
+        verify(mailSender, times(1)).send(mimeMessage);
+    }
+
+    @Test
+    void sendSubmissionEvaluationEmail_doesNotThrowWithNullComments() {
+        assertThatNoException().isThrownBy(() ->
+                service.sendSubmissionEvaluationEmail(
+                        "ana@mail.com", "Ana", "Congress", "Talk", "PONENCIA", true, null)
+        );
+    }
+
+    @Test
+    void sendSubmissionEvaluationEmail_doesNotPropagateException() {
+        when(mailSender.createMimeMessage()).thenThrow(new RuntimeException("SMTP error"));
+        assertThatNoException().isThrownBy(() ->
+                service.sendSubmissionEvaluationEmail(
+                        "ana@mail.com", "Ana", "Congress", "Talk", "PONENCIA", false, "Comments")
+        );
     }
 }

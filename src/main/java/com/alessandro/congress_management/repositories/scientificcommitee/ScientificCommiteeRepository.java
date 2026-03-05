@@ -25,4 +25,6 @@ public interface ScientificCommiteeRepository extends JpaRepository<ScientificCo
     WHERE sc.congress.idCongress = :congressId
     """)
     List<Long> findUserIdsByCongressId(@Param("congressId") Long congressId);
+
+     List<ScientificCommiteeEntity> findByUser_IdUser(Long userId);
 }
