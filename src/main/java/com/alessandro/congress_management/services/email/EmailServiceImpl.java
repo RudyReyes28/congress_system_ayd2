@@ -69,6 +69,32 @@ public class EmailServiceImpl implements EmailService {
         send(to, subject, html);
     }
 
+    @Async
+    @Override
+    public void sendSubmissionCancelledEmail(String to, String fullName,
+                                             String congressName,
+                                             String activityName,
+                                             String activityType) {
+
+        String subject = "Submission not scheduled — " + congressName;
+
+        String html = templateBuilder.buildSubmissionCancelledEmail(
+                fullName, congressName, activityName, activityType
+        );
+
+        send(to, subject, html);
+    }
+
+
+    @Async
+    @Override
+    public void sendSubmissionEvaluationEmail(String to, String fullName, String congressName, String activityName, String activityType, boolean isAccepted, String comments) {
+        String subject = "Submission Evaluation Result — " + congressName;
+        String html = templateBuilder.buildSubmissionEvaluationEmail(
+                fullName, congressName, activityName, activityType, isAccepted, comments);
+        send(to, subject, html);
+    }
+
 
     private void send(String to, String subject, String htmlBody) {
         try {

@@ -120,6 +120,85 @@ public class EmailTemplateBuilder {
         return buildLayout("Presenter Confirmation", headerTitle, body);
     }
 
+    public String buildSubmissionCancelledEmail(String fullName,
+                                                String congressName,
+                                                String activityName,
+                                                String activityType) {
+
+        String headerTitle = "Your submission will not be scheduled";
+
+        String body = """
+            <p style="color:%s; font-size:16px; line-height:1.7; margin:0 0 20px">
+                Hi <strong style="color:%s">%s</strong>,
+            </p>
+
+            <p style="color:%s; font-size:16px; line-height:1.7; margin:0 0 24px">
+                We would like to inform you that although your submission was evaluated,
+                it has not been scheduled as an activity in the congress program.
+            </p>
+
+            %s
+            %s
+
+            <div style="background:%s; border-radius:10px; padding:18px 22px;
+                        border-left:4px solid %s; margin:16px 0">
+                <p style="color:%s; font-size:11px; text-transform:uppercase;
+                          letter-spacing:1.5px; margin:0 0 6px; font-weight:700">
+                    STATUS
+                </p>
+                <p style="color:%s; font-size:17px; font-weight:700; margin:0">
+                    Not scheduled in the congress program
+                </p>
+            </div>
+
+            <p style="color:%s; font-size:14px; line-height:1.6; margin-top:24px">
+                We appreciate your interest in participating in the congress and
+                encourage you to submit again in future editions.
+            </p>
+            """.formatted(
+                TEXT_MAIN, ACCENT, fullName,
+                TEXT_MAIN,
+                highlightBlock("🏛️ Congress", congressName, PRIMARY),
+                highlightBlock("🎤 Activity (" + activityType + ")", activityName, WARNING),
+                DARK_BG, WARNING,
+                TEXT_MAIN,
+                TEXT_MUTED,
+                TEXT_MUTED
+        );
+
+        return buildLayout("Submission Update", headerTitle, body);
+    }
+
+    public String buildSubmissionEvaluationEmail(String fullName, String congressName, String activityName, String activityType, boolean isAccepted, String comments) {
+            String statusLabel = isAccepted ? "Accepted" : "Rejected";
+            String statusColor = isAccepted ? SUCCESS : WARNING;
+            String headerTitle = isAccepted ? "Your submission was accepted" : "Your submission was rejected";
+
+            String body = """
+                    <p style="color:%s; font-size:16px; line-height:1.7; margin:0 0 20px">
+                        Hi <strong style="color:%s">%s</strong>,
+                    </p>
+                    <p style="color:%s; font-size:16px; line-height:1.7; margin:0 0 24px">
+                        We have completed the evaluation of your submission for the following congress:
+                    </p>
+                    %s
+                    %s
+                    <div style="background:%s; border-radius:10px; padding:18px 22px;
+                                border-left:4px solid %s; margin:16px 0">
+                        <p style="color:%s; font-size:11px; text-transform:uppercase;
+                                letter-spacing:1.5px; margin:0 0 6px; font-weight:700">%s</p>
+                        <p style="color:%s; font-size:17px; font-weight:700; margin:0">%s</p>
+                    </div>
+                    """.formatted(
+                    TEXT_MAIN, ACCENT, fullName,
+                    TEXT_MAIN,
+                    highlightBlock("🏛️ Congress", congressName, PRIMARY),
+                    highlightBlock("🎤 Activity (" + activityType + ")", activityName, statusColor),
+                    DARK_BG, statusColor, TEXT_MAIN, statusLabel, TEXT_MUTED, comments != null ? comments : "No additional comments provided."
+            );
+            return buildLayout("Submission Evaluation Result", headerTitle, body);
+    }
+
 
     private String credentialsBlock(String username, String password) {
         return """

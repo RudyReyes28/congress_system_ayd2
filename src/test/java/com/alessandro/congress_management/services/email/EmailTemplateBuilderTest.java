@@ -188,4 +188,100 @@ class EmailTemplateBuilderTest {
                 "Luis Torres", "Congress", "Talk", "TALLER", false);
         assertThat(html).contains("<!DOCTYPE html>").contains("</html>");
     }
+
+    //-------------- TESTS FOR SEND SUBMISSION CANCELLED EMAILS ----------------
+    @Test
+    void buildSubmissionCancelledEmail_containsFullName() {
+        String html = builder.buildSubmissionCancelledEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA");
+        assertThat(html).contains("Ana López");
+    }
+
+    @Test
+    void buildSubmissionCancelledEmail_containsCongressName() {
+        String html = builder.buildSubmissionCancelledEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA");
+        assertThat(html).contains("Tech Congress 2026");
+    }
+
+    @Test
+    void buildSubmissionCancelledEmail_containsActivityName() {
+        String html = builder.buildSubmissionCancelledEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA");
+        assertThat(html).contains("ML Talk");
+    }
+
+    @Test
+    void buildSubmissionCancelledEmail_containsActivityType() {
+        String html = builder.buildSubmissionCancelledEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA");
+        assertThat(html).contains("PONENCIA");
+    }
+
+    @Test
+    void buildSubmissionCancelledEmail_containsNotScheduledMessage() {
+        String html = builder.buildSubmissionCancelledEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA");
+        assertThat(html).containsIgnoringCase("not scheduled");
+    }
+
+    @Test
+    void buildSubmissionCancelledEmail_isValidHtmlStructure() {
+        String html = builder.buildSubmissionCancelledEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA");
+        assertThat(html).contains("<!DOCTYPE html>").contains("</html>");
+    }
+
+    @Test
+    void buildSubmissionEvaluationEmail_containsCoreData() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Tech Congress 2026", "ML Talk", "PONENCIA", true, "Great work!");
+        assertThat(html)
+                .contains("Ana López")
+                .contains("Tech Congress 2026")
+                .contains("ML Talk");
+    }
+
+    @Test
+    void buildSubmissionEvaluationEmail_showsAcceptedLabel() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Congress", "Talk", "PONENCIA", true, "Good.");
+        assertThat(html).containsIgnoringCase("Accepted");
+    }
+
+    @Test
+    void buildSubmissionEvaluationEmail_showsRejectedLabel() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Congress", "Talk", "PONENCIA", false, "Needs work.");
+        assertThat(html).containsIgnoringCase("Rejected");
+    }
+
+    @Test
+    void buildSubmissionEvaluationEmail_containsComments() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Congress", "Talk", "PONENCIA", true, "Excellent research.");
+        assertThat(html).contains("Excellent research.");
+    }
+
+    @Test
+    void buildSubmissionEvaluationEmail_showsFallbackWhenCommentsNull() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Congress", "Talk", "PONENCIA", true, null);
+        assertThat(html).containsIgnoringCase("No additional comments");
+    }
+
+    @Test
+    @DisplayName("should contain activity type")
+    void containsActivityType() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Congress", "Talk", "TALLER", false, "Comments.");
+        assertThat(html).contains("TALLER");
+    }
+
+    @Test
+    void buildSubmissionEvaluationEmail_isValidHtmlStructure() {
+        String html = builder.buildSubmissionEvaluationEmail(
+                "Ana López", "Congress", "Talk", "PONENCIA", true, "Ok.");
+        assertThat(html).contains("<!DOCTYPE html>").contains("</html>");
+    }
 }

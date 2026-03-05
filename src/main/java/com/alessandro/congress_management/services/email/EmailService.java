@@ -11,4 +11,13 @@ public interface EmailService {
 
     void sendPresenterAcceptedEmail(String to, String fullName, String congressName,
                                     String activityName, String activityType, boolean isInvited);
+
+    void sendSubmissionCancelledEmail(String to, String fullName,
+                                      String congressName,
+                                      String activityName,
+                                      String activityType);
+
+    void sendSubmissionEvaluationEmail(String to, String fullName, String congressName,
+                                   String activityName, String activityType,
+                                   boolean isAccepted, String comments);
 }

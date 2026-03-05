@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "SubmissionEvaluation")
 @Table(name = "submission_evaluation")
@@ -32,5 +33,5 @@ public class SubmissionEvaluationEntity {
     private Boolean isApproved;
 
     @Column(name = "evaluated_at")
-    private Timestamp evaluatedAt;
+    private LocalDateTime evaluatedAt = LocalDateTime.now();
 }
