@@ -129,8 +129,8 @@ public class RegistrationControllerTest {
         Long congressId = 1L;
 
         List<RegisteredUserDTO> mockRegisteredUsers = Arrays.asList(
-                new RegisteredUserDTO(10L, "User One", "email@gmail.com", "org1", new BigDecimal("100.00"), LocalDateTime.now()),
-                new RegisteredUserDTO(20L, "User Two", "email2@gmail.com", "org2", new BigDecimal("100.00"), LocalDateTime.now())
+                new RegisteredUserDTO(10L, "User One", "email@gmail.com", "ADB789541","org1", new BigDecimal("100.00"), LocalDateTime.now()),
+                new RegisteredUserDTO(20L, "User Two", "email2@gmail.com", "AD89541","org2", new BigDecimal("100.00"), LocalDateTime.now())
         );
         when(registrationService.getRegistrationsByCongress(eq(congressId))).thenReturn(mockRegisteredUsers);
 

@@ -9,6 +9,7 @@ public class DetailActivityPresenterResponse {
     Long idUser;
     String presenterName;
     String presenterEmail;
+    String presenterIdentificationNumber;
     String presenterOrganization;
     Boolean invitedSpeaker;
     Boolean mainAuthor;
@@ -19,6 +20,7 @@ public class DetailActivityPresenterResponse {
                     activityPresenter.getUser().getIdUser(),
                     activityPresenter.getUser().getFullName(),
                     activityPresenter.getUser().getEmail(),
+                    activityPresenter.getUser().getIdentificationNumber(),
                     activityPresenter.getUser().getOrganization(),
                     activityPresenter.getIsInvitedSpeaker(),
                     activityPresenter.getIsMainAuthor()

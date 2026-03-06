@@ -12,6 +12,7 @@ public class RegisteredUserDTO {
     Long userId;
     String fullName;
     String email;
+    String identificationNumber;
     String organization;
     BigDecimal amountPaid;
     LocalDateTime registrationDate;
@@ -21,6 +22,7 @@ public class RegisteredUserDTO {
                 entity.getUser().getIdUser(),
                 entity.getUser().getFullName(),
                 entity.getUser().getEmail(),
+                entity.getUser().getIdentificationNumber(),
                 entity.getUser().getOrganization(),
                 entity.getAmountPaid(),
                 entity.getRegistrationDate()
