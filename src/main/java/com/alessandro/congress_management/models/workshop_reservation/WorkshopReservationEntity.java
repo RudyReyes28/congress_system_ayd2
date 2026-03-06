@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "WorkshopReservation")
 @Table(name = "workshop_reservation")
@@ -27,7 +28,7 @@ public class WorkshopReservationEntity {
     private UserEntity user;
 
     @Column(name = "reserved_at")
-    private Timestamp reservedAt;
+    private LocalDateTime reservedAt;
 
 
 }
