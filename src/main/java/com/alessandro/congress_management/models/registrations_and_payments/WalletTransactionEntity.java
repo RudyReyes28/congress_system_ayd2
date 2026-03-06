@@ -1,0 +1,45 @@
+package com.alessandro.congress_management.models.registrations_and_payments;
+
+
+import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+@Entity(name = "WalletTransaction")
+@Table(name = "wallet_transaction")
+@Data
+@NoArgsConstructor
+public class WalletTransactionEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_transaction")
+    private Long idTransaction;
+
+    @ManyToOne
+    @JoinColumn(name = "id_user", referencedColumnName = "id_user")
+    private UserEntity user;
+
+    @Column(name = "transaction_type", nullable = false)
+    private String transactionType;
+
+    @Column(name = "amount", nullable = false)
+    private BigDecimal amount;
+
+    @Column(name = "description", length = 500)
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "related_registration_id", referencedColumnName = "id_registration")
+    private RegistrationEntity relatedRegistration;
+
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDateTime transactionDate;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt  = LocalDateTime.now();
+}
