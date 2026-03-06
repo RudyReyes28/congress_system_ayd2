@@ -19,4 +19,6 @@ public interface CongressAdministratorRepository extends JpaRepository<CongressA
     Optional<CongressAdministratorEntity> findByUser_IdUserAndCongress_IdCongress(Long idUser, Long idCongress);
 
     int countByCongress_IdCongress(Long idCongress);
+
+    boolean existsByUser_IdUserAndCongress_IdCongress(Long userIdUser, Long congressIdCongress);
 }
