@@ -17,4 +17,10 @@ public interface AttendanceRepository extends JpaRepository<AttendanceEntity, Lo
     List<AttendanceEntity> findByActivity_IdActivity(Long idActivity);
 
     List<AttendanceEntity> findByActivity_Congress_IdCongress(Long idCongress);
+
+    int countByActivity_IdActivity(Long idActivity);
+
+    int countByUser_idUserAndActivity_Congress_IdCongress(Long idUser, Long idCongress);
+
+    long countByUser_IdUserAndActivity_Congress_IdCongress(Long idUser, Long idCongress);
 }

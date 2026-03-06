@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity(name = "Certificate")
 @Table(name = "certificate")
@@ -38,6 +39,6 @@ public class CertificateEntity {
     private String certificateUrl;
 
     @Column(name = "generated_at")
-    private Timestamp generatedAt;
+    private LocalDateTime generatedAt = LocalDateTime.now();
 
 }
