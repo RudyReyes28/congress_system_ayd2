@@ -16,4 +16,8 @@ public interface ActivityPresenterRepository extends JpaRepository<ActivityPrese
     int countByActivity_IdActivity(Long idActivity);
 
     List<ActivityPresenterEntity> findByActivity_IdActivity(Long idActivity);
+
+    boolean existsByActivity_IdActivityAndUser_IdUserAndIsInvitedSpeakerTrue(Long idActivity, Long idUser);
+
+    ActivityPresenterEntity findByActivity_IdActivityAndUser_IdUser(Long idActivity, Long idUser);
 }
