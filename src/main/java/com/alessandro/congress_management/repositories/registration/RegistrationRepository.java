@@ -26,4 +26,10 @@ public interface RegistrationRepository extends JpaRepository<RegistrationEntity
     List<RegistrationEntity> findByUser_IdUser(Long userId);
 
     List<RegistrationEntity> findByCongress_IdCongress(Long congressId);
+
+    int countByCongress_IdCongress(Long congressId);
+
+    int countByUser_IdUserAndCongress_IdCongress(Long userId, Long congressId);
+
+
 }
