@@ -20,4 +20,7 @@ public interface EmailService {
     void sendSubmissionEvaluationEmail(String to, String fullName, String congressName,
                                    String activityName, String activityType,
                                    boolean isAccepted, String comments);
+
+    void sendInvitationEmail(String toEmail, String fullName, String activationLink);
+
 }

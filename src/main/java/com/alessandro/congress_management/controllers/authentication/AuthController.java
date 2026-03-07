@@ -1,9 +1,8 @@
 package com.alessandro.congress_management.controllers.authentication;
 
 import com.alessandro.congress_management.dto.authenticate.*;
-import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
-import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
-import com.alessandro.congress_management.exceptions.InvalidTokenException;
+import com.alessandro.congress_management.dto.user_manager.ActivateAccountRequest;
+import com.alessandro.congress_management.exceptions.*;
 import com.alessandro.congress_management.services.authenticate.AuthService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -130,5 +129,12 @@ public class AuthController {
         return ResponseEntity.ok(
                 new MessageResponse("Sesión cerrada exitosamente")
         );
+    }
+
+
+    @PostMapping("/activate")
+    public ResponseEntity<Void> activate(@RequestBody ActivateAccountRequest request) throws BusinessRuleException, NotFoundException {
+        authService.activateAccount(request);
+        return ResponseEntity.ok().build();
     }
 }

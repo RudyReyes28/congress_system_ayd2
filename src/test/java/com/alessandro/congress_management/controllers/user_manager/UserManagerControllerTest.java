@@ -383,7 +383,6 @@ class UserManagerControllerTest {
                 "555-1234",
                 "USAC",
                 "johndoe",
-                "password123",
                 "12345678",
                 "PARTICIPANT"
         );
@@ -407,7 +406,6 @@ class UserManagerControllerTest {
                 "7777-9999",
                 "USAC",
                 "admin_congress",
-                "securePassword123",
                 "99999999",
                 1L  // institutionId
         );

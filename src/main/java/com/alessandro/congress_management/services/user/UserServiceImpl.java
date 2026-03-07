@@ -16,49 +16,46 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserRepository  userRepository;
+    private final RoleRepository  roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+    public UserServiceImpl(UserRepository userRepository,
+                           RoleRepository roleRepository,
+                           PasswordEncoder passwordEncoder) {
+        this.userRepository  = userRepository;
+        this.roleRepository  = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
+
     @Override
-    public UserEntity createUser(CreateUserCommand createUserCommand) throws DuplicatedEntityException {
+    public UserEntity createUser(CreateUserCommand command) throws DuplicatedEntityException {
+        validateUniqueFields(command.username(), command.email(), command.identificationNumber(), null);
 
-        // Validar datos
-        validateUniqueFields(
-                createUserCommand.username(),
-                createUserCommand.email(),
-                createUserCommand.identificationNumber(),
-                null // null porque es creación, no actualización
-        );
+        RoleEntity role = findRole(command.roleName());
 
-        RoleEntity defaultRole = roleRepository.findByRoleName(createUserCommand.roleName())
-                .orElseThrow(() -> new DuplicatedEntityException("El rol especificado no existe"));
-
-        // Hashear password
-        String hashedPassword = passwordEncoder.encode(createUserCommand.password());
-
-        // Crear entidad
-        UserEntity user = new UserEntity();
-        user.setEmail(createUserCommand.email());
-        user.setFullName(createUserCommand.fullName());
-        user.setPhoneNumber(createUserCommand.phoneNumber());
-        user.setOrganization(createUserCommand.organization());
-        user.setUsername(createUserCommand.username());
-        user.setPassword(hashedPassword);
-        user.setIdentificationNumber(createUserCommand.identificationNumber());
-        user.setRole(defaultRole);
+        UserEntity user = buildUser(command, role);
+        user.setPassword(passwordEncoder.encode(command.password()));
         user.setIsActive(true);
 
-        // Guardar usuario
         return userRepository.save(user);
-
     }
+
+
+    @Override
+    public UserEntity createInactiveUser(CreateUserCommand command) throws DuplicatedEntityException {
+        validateUniqueFields(command.username(), command.email(), command.identificationNumber(), null);
+
+        RoleEntity role = findRole(command.roleName());
+
+        UserEntity user = buildUser(command, role);
+        user.setPassword(null);
+        user.setIsActive(false);
+
+        return userRepository.save(user);
+    }
+
 
     @Override
     public UserEntity getUserById(Long idUser) throws NotFoundException {
@@ -66,77 +63,86 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + idUser));
     }
 
+
     @Override
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
+
 
     @Override
     public List<UserEntity> findActiveUsers() {
         return userRepository.findByIsActiveTrue();
     }
 
+
     @Override
     public void setUserActiveStatus(Long idUser, boolean isActive) throws NotFoundException {
         UserEntity user = userRepository.findById(idUser)
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado "));
-
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
         user.setIsActive(isActive);
         userRepository.save(user);
     }
 
 
     @Override
-    public UserEntity updateUser(Long idUser, UpdateUserRequest updateUserCommand) throws NotFoundException, DuplicatedEntityException {
-        UserEntity existingUser = userRepository.findById(idUser)
+    public UserEntity updateUser(Long idUser, UpdateUserRequest command)
+            throws NotFoundException, DuplicatedEntityException {
+        UserEntity existing = userRepository.findById(idUser)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + idUser));
 
-        // Validar datos
-        validateUniqueFields(
-                updateUserCommand.getUsername(),
-                updateUserCommand.getEmail(),
-                updateUserCommand.getIdentificationNumber(),
-                idUser
-        );
+        validateUniqueFields(command.getUsername(), command.getEmail(),
+                command.getIdentificationNumber(), idUser);
 
+        existing.setEmail(command.getEmail());
+        existing.setFullName(command.getFullName());
+        existing.setPhoneNumber(command.getPhoneNumber());
+        existing.setOrganization(command.getOrganization());
+        existing.setUsername(command.getUsername());
+        existing.setIdentificationNumber(command.getIdentificationNumber());
 
-        existingUser.setEmail(updateUserCommand.getEmail());
-        existingUser.setFullName(updateUserCommand.getFullName());
-        existingUser.setPhoneNumber(updateUserCommand.getPhoneNumber());
-        existingUser.setOrganization(updateUserCommand.getOrganization());
-        existingUser.setUsername(updateUserCommand.getUsername());
-        existingUser.setIdentificationNumber(updateUserCommand.getIdentificationNumber());
-
-        return userRepository.save(existingUser);
+        return userRepository.save(existing);
     }
+
+
 
     @Override
     public void changeUserPassword(Long idUser, String newPassword) throws NotFoundException {
         UserEntity user = userRepository.findById(idUser)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
-
-        String hashedPassword = passwordEncoder.encode(newPassword);
-        user.setPassword(hashedPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
-    private void validateUniqueFields(
-            String username,
-            String email,
-            String identificationNumber,
-            Long currentUserId // null si es create
-    ) throws DuplicatedEntityException {
+
+    private UserEntity buildUser(CreateUserCommand command, RoleEntity role) {
+        UserEntity user = new UserEntity();
+        user.setUsername(command.username());
+        user.setEmail(command.email());
+        user.setFullName(command.fullName());
+        user.setPhoneNumber(command.phoneNumber());
+        user.setOrganization(command.organization());
+        user.setIdentificationNumber(command.identificationNumber());
+        user.setRole(role);
+        return user;
+    }
+
+    private RoleEntity findRole(String roleName) throws DuplicatedEntityException {
+        return roleRepository.findByRoleName(roleName)
+                .orElseThrow(() -> new DuplicatedEntityException("El rol especificado no existe"));
+    }
+
+    private void validateUniqueFields(String username, String email,
+                                      String identificationNumber,
+                                      Long currentUserId) throws DuplicatedEntityException {
         if (userRepository.existsByUsernameAndIdUserNot(username, currentUserId)) {
             throw new DuplicatedEntityException("El username ya está en uso");
         }
-
         if (userRepository.existsByEmailAndIdUserNot(email, currentUserId)) {
             throw new DuplicatedEntityException("El email ya está registrado");
         }
-
         if (userRepository.existsByIdentificationNumberAndIdUserNot(identificationNumber, currentUserId)) {
             throw new DuplicatedEntityException("El número de identificación ya está registrado");
         }
     }
-
 }

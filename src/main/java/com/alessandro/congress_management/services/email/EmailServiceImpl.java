@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailServiceImpl implements EmailService {
 
+    private static final long INVITATION_EXPIRY_HOURS = 48;
+
     private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private final JavaMailSender mailSender;
@@ -113,6 +115,20 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to build email → to={} subject='{}' error={}", to, subject, e.getMessage(), e);
         } catch (Exception e) {
             log.error("Unexpected error sending email → to={} subject='{}' error={}", to, subject, e.getMessage(), e);
+        }
+    }
+
+
+
+    @Async
+    @Override
+    public void sendInvitationEmail(String toEmail, String fullName, String activationLink) {
+        try {
+            String html = templateBuilder.buildInvitationEmail(
+                    fullName, activationLink, INVITATION_EXPIRY_HOURS);
+            send(toEmail, "Activa tu cuenta en el Sistema de Congresos", html);
+        } catch (Exception e) {
+            log.error("Failed to send invitation email to {}: {}", toEmail, e.getMessage());
         }
     }
 }

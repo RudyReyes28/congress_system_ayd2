@@ -16,9 +16,9 @@ public class CreateCongressAdminRequest {
     String organization;
     @NotBlank(message = "Username cannot be blank")
     String username;
-    @NotBlank(message = "Password cannot be blank")
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    String password;
+    //@NotBlank(message = "Password cannot be blank")
+    //@Size(min = 8, message = "Password must be at least 8 characters")
+    //String password;
     @NotBlank(message = "Identification number cannot be blank")
     String identificationNumber;
     @NotNull(message = "Institution ID cannot be null")
