@@ -2,6 +2,7 @@ package com.alessandro.congress_management.controllers.user_manager;
 
 
 import com.alessandro.congress_management.dto.user_manager.*;
+import com.alessandro.congress_management.exceptions.BusinessRuleException;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.NotFoundException;
 import com.alessandro.congress_management.services.user_manager.UserManagerService;
@@ -40,7 +41,7 @@ public class UserManagerController {
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "409", description = "Username, email or identification already registered")
     })
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) throws DuplicatedEntityException {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) throws DuplicatedEntityException, NotFoundException {
         UserResponse userResponse = userManagerService.createUserByAdmin(createUserRequest);
         return ResponseEntity.status(201).body(userResponse);
     }
@@ -108,6 +109,19 @@ public class UserManagerController {
     public ResponseEntity<UserCongressAdminResponse> createCongressAdmin(@Valid @RequestBody CreateCongressAdminRequest createCongressAdminRequest) throws DuplicatedEntityException, NotFoundException {
         UserCongressAdminResponse congressAdminResponse = userManagerService.createCongressAdmin(createCongressAdminRequest);
         return ResponseEntity.status(201).body(congressAdminResponse);
+    }
+
+    @PostMapping("/{idUser}/resend-invitation")
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @Operation(summary = "Resend invitation email to a user", description = "Resends the invitation email to a user based on their ID. Only administrators can access this endpoint.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Invitation email resent successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    public ResponseEntity<Void> resend(@PathVariable Long idUser) throws BusinessRuleException, NotFoundException {
+        userManagerService.resendInvitation(idUser);
+        return ResponseEntity.ok().build();
     }
 
 }

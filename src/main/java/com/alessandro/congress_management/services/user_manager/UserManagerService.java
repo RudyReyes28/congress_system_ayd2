@@ -1,6 +1,7 @@
 package com.alessandro.congress_management.services.user_manager;
 
 import com.alessandro.congress_management.dto.user_manager.*;
+import com.alessandro.congress_management.exceptions.BusinessRuleException;
 import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
 import com.alessandro.congress_management.exceptions.NotFoundException;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
@@ -11,7 +12,10 @@ public interface UserManagerService {
 
 
     //Crear usuario
-    UserResponse createUserByAdmin(CreateUserRequest createUserRequest) throws DuplicatedEntityException;
+    UserResponse createUserByAdmin(CreateUserRequest createUserRequest) throws DuplicatedEntityException, NotFoundException;
+
+    void resendInvitation(Long idUser) throws NotFoundException, BusinessRuleException;
+
 
     //Listar usuarios
     List<UserResponse> getAllUsers();
