@@ -10,6 +10,7 @@ services:
       - .env.prod                    # variables de entorno en el servidor
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - TZ=America/Guatemala
     expose:
       - '8081'                       # solo visible dentro de la red Docker
     networks:
