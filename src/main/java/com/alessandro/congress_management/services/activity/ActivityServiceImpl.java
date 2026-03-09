@@ -17,6 +17,7 @@ import com.alessandro.congress_management.services.congress.CongressService;
 import com.alessandro.congress_management.services.room.RoomService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -51,7 +52,7 @@ public class ActivityServiceImpl implements ActivityService {
         RoomEntity roomEntity = roomService.findRoomById(request.getRoomId());
 
         //Validamos que la fecha de la actividad este dentro de las fechas del congreso
-        if(request.getStartTime().isBefore(congress.getStartDate().atStartOfDay()) || request.getEndTime().isAfter(congress.getEndDate().atStartOfDay())) {
+        if(request.getStartTime().isBefore(congress.getStartDate().atStartOfDay()) || request.getEndTime().isAfter(congress.getEndDate().atTime(LocalTime.MAX))) {
             throw new BusinessRuleException("Activity times must be within the congress dates (" + congress.getStartDate() + " to " + congress.getEndDate() + ").");
         }
 
