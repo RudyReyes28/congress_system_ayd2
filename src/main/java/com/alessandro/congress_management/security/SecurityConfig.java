@@ -70,6 +70,8 @@ public class SecurityConfig {
                                 "/api/v1/congresses/public"
                         ).permitAll()
 
+                        .requestMatchers("/actuator/health").permitAll()
+
                         // Swagger UI y OpenAPI docs
                         .requestMatchers(
                                 "/swagger-ui/**",
