@@ -3,6 +3,8 @@ package com.alessandro.congress_management.dto.congress;
 import com.alessandro.congress_management.models.congress_management.CongressEntity;
 import lombok.Value;
 
+import java.time.LocalDate;
+
 @Value
 public class CongressResponse {
     Long idCongress;
