@@ -17,7 +17,6 @@ public class WalletRechargeRequest {
     @NotBlank(message = "Description is required")
     String description;
     @NotNull(message = "Transaction date is required")
-    @FutureOrPresent(message = "Transaction date cannot be in the past")
     LocalDateTime transactionDate;
 
 }
