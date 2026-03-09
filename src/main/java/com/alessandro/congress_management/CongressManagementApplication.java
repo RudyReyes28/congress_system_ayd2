@@ -7,27 +7,33 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class CongressManagementApplication {
 
-	public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.configure().load();
+    public static void main(String[] args) {
+        // Cargar .env solo si existe (desarrollo local)
+        // En produccion Docker inyecta las variables directamente
+        if (new java.io.File(".env").exists()) {
+            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+            loadEnvVar(dotenv, "JWT_SECRET");
+            loadEnvVar(dotenv, "JWT_EXPIRATION");
+            loadEnvVar(dotenv, "JWT_REFRESH_EXPIRATION");
+            loadEnvVar(dotenv, "DB_URL");
+            loadEnvVar(dotenv, "DB_USERNAME");
+            loadEnvVar(dotenv, "DB_PASSWORD");
+            loadEnvVar(dotenv, "AWS_ACCESS_KEY");
+            loadEnvVar(dotenv, "AWS_SECRET_KEY");
+            loadEnvVar(dotenv, "AWS_REGION");
+            loadEnvVar(dotenv, "AWS_S3_BUCKET_NAME");
+            loadEnvVar(dotenv, "MAIL_USERNAME");
+            loadEnvVar(dotenv, "MAIL_APP_PASSWORD");
+            loadEnvVar(dotenv, "MAIL_FROM_NAME");
+            loadEnvVar(dotenv, "APP_FRONTEND_URL");
+        }
+        SpringApplication.run(CongressManagementApplication.class, args);
+    }
 
-        System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
-        System.setProperty("JWT_EXPIRATION", dotenv.get("JWT_EXPIRATION"));
-        System.setProperty("JWT_REFRESH_EXPIRATION", dotenv.get("JWT_REFRESH_EXPIRATION"));
-
-        System.setProperty("DB_URL", dotenv.get("DB_URL"));
-        System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
-        System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-
-        System.setProperty("AWS_ACCESS_KEY", dotenv.get("AWS_ACCESS_KEY"));
-        System.setProperty("AWS_SECRET_KEY", dotenv.get("AWS_SECRET_KEY"));
-        System.setProperty("AWS_REGION", dotenv.get("AWS_REGION"));
-        System.setProperty("AWS_S3_BUCKET_NAME", dotenv.get("AWS_S3_BUCKET_NAME"));
-
-        System.setProperty("MAIL_USERNAME", dotenv.get("MAIL_USERNAME"));
-        System.setProperty("MAIL_APP_PASSWORD", dotenv.get("MAIL_APP_PASSWORD"));
-        System.setProperty("MAIL_FROM_NAME", dotenv.get("MAIL_FROM_NAME"));
-
-		SpringApplication.run(CongressManagementApplication.class, args);
-	}
-
+    private static void loadEnvVar(Dotenv dotenv, String key) {
+        String value = dotenv.get(key);
+        if (value != null) System.setProperty(key, value);
+    }
 }
+
+
