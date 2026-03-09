@@ -8,6 +8,7 @@ import com.alessandro.congress_management.models.authentication_and_users.RoleEn
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
 import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
+import com.alessandro.congress_management.services.invitation.UserInvitationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +32,9 @@ public class UserServiceImplTest {
 
     @Mock
     private RoleRepository roleRepository;
+
+    @Mock
+    private UserInvitationService userInvitationService;
 
     @Mock
     private PasswordEncoder passwordEncoder;

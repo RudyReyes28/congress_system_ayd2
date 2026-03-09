@@ -1,0 +1,12 @@
+
+ALTER TABLE user MODIFY password VARCHAR(255) NULL;
+
+CREATE TABLE user_invitation (
+    id_invitation BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_user BIGINT NOT NULL,
+    token VARCHAR(100) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_invitation_user FOREIGN KEY (id_user) REFERENCES user (id_user) ON DELETE CASCADE
+);

@@ -9,6 +9,7 @@ import com.alessandro.congress_management.models.congress_management.Institution
 import com.alessandro.congress_management.models.institutions_and_system.InstitutionEntity;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
 import com.alessandro.congress_management.services.institution_administrator.InstitutionAdministratorService;
+import com.alessandro.congress_management.services.invitation.UserInvitationService;
 import com.alessandro.congress_management.services.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,9 @@ class UserManagerServiceImplTest {
     private UserService userService;
 
     @Mock
+    private UserInvitationService invitationService;
+
+    @Mock
     private InstitutionAdministratorService institutionAdministratorService;
 
     @InjectMocks
@@ -43,12 +47,12 @@ class UserManagerServiceImplTest {
     // ---------------------- CREATE USER BY ADMIN TESTS -------------------
 
     @Test
-    void testCreateUserByAdmin_success() throws DuplicatedEntityException {
+    void testCreateUserByAdmin_success() throws DuplicatedEntityException, NotFoundException {
         // Arrange
         CreateUserRequest request = createUserRequest();
         UserEntity createdUser = createUser(1L, "johndoe", "PARTICIPANT");
 
-        when(userService.createUser(any(CreateUserCommand.class))).thenReturn(createdUser);
+        when(userService.createInactiveUser(any(CreateUserCommand.class))).thenReturn(createdUser);
 
         // Act
         UserResponse response = userManagerService.createUserByAdmin(request);
@@ -62,10 +66,10 @@ class UserManagerServiceImplTest {
         );
 
         // Verificar que se llamó al servicio con el comando correcto
-        verify(userService).createUser(argThat(command ->
+        verify(userService).createInactiveUser(argThat(command ->
                 command.username().equals("johndoe") &&
                         command.email().equals("john@example.com") &&
-                        command.password().equals("password123") &&
+                        //command.password().equals("password123") &&
                         command.fullName().equals("John Doe") &&
                         command.phoneNumber().equals("555-1234") &&
                         command.organization().equals("USAC") &&
@@ -75,18 +79,18 @@ class UserManagerServiceImplTest {
     }
 
     @Test
-    void testCreateUserByAdmin_shouldDelegateToUserService() throws DuplicatedEntityException {
+    void testCreateUserByAdmin_shouldDelegateToUserService() throws DuplicatedEntityException, NotFoundException {
         // Arrange
         CreateUserRequest request = createUserRequest();
         UserEntity createdUser = createUser(1L, "johndoe", "PARTICIPANT");
 
-        when(userService.createUser(any(CreateUserCommand.class))).thenReturn(createdUser);
+        when(userService.createInactiveUser(any(CreateUserCommand.class))).thenReturn(createdUser);
 
         // Act
         userManagerService.createUserByAdmin(request);
 
         // Assert - Verificar que DELEGA al UserService
-        verify(userService, times(1)).createUser(any(CreateUserCommand.class));
+        verify(userService, times(1)).createInactiveUser(any(CreateUserCommand.class));
     }
 
     @Test
@@ -95,7 +99,7 @@ class UserManagerServiceImplTest {
         // Arrange
         CreateUserRequest request = createUserRequest();
 
-        when(userService.createUser(any(CreateUserCommand.class)))
+        when(userService.createInactiveUser(any(CreateUserCommand.class)))
                 .thenThrow(new DuplicatedEntityException("Username ya existe"));
 
         // Act & Assert
@@ -105,25 +109,25 @@ class UserManagerServiceImplTest {
         );
 
         assertEquals("Username ya existe", exception.getMessage());
-        verify(userService).createUser(any(CreateUserCommand.class));
+        verify(userService).createInactiveUser(any(CreateUserCommand.class));
     }
 
     @Test
-    void testCreateUserByAdmin_shouldConvertRequestToCommand() throws DuplicatedEntityException {
+    void testCreateUserByAdmin_shouldConvertRequestToCommand() throws DuplicatedEntityException, NotFoundException {
         // Arrange
         CreateUserRequest request = createUserRequest();
         UserEntity createdUser = createUser(1L, "johndoe", "PARTICIPANT");
 
-        when(userService.createUser(any(CreateUserCommand.class))).thenReturn(createdUser);
+        when(userService.createInactiveUser(any(CreateUserCommand.class))).thenReturn(createdUser);
 
         // Act
         userManagerService.createUserByAdmin(request);
 
         // Assert - Verificar que los datos del Request se pasan correctamente al Command
-        verify(userService).createUser(argThat(command -> {
+        verify(userService).createInactiveUser(argThat(command -> {
             return command.username().equals(request.getUsername()) &&
                     command.email().equals(request.getEmail()) &&
-                    command.password().equals(request.getPassword()) &&
+                    //command.password().equals(request.getPassword()) &&
                     command.fullName().equals(request.getFullName()) &&
                     command.phoneNumber().equals(request.getPhoneNumber()) &&
                     command.organization().equals(request.getOrganization()) &&
@@ -138,7 +142,7 @@ class UserManagerServiceImplTest {
         CreateCongressAdminRequest request = createCongressAdminRequest();
         UserEntity createdUser = createUser(1L, "johndoe", "CONGRESS_ADMIN");
         InstitutionAdministratorEntity createdAdmin = createInstitutionAdmin(createdUser, createInstitution());
-        when(userService.createUser(any(CreateUserCommand.class))).thenReturn(createdUser);
+        when(userService.createInactiveUser(any(CreateUserCommand.class))).thenReturn(createdUser);
         when(institutionAdministratorService.createInstitutionAdministrator(any(CreateInstitutionAdministratorRequest.class)))
                 .thenReturn(createdAdmin);
 
@@ -154,10 +158,10 @@ class UserManagerServiceImplTest {
         );
 
         // Assert - Verificar que los datos del Request se pasan correctamente al Command
-        verify(userService).createUser(argThat(command -> {
+        verify(userService).createInactiveUser(argThat(command -> {
             return command.username().equals(request.getUsername()) &&
                     command.email().equals(request.getEmail()) &&
-                    command.password().equals(request.getPassword()) &&
+                    //command.password().equals(request.getPassword()) &&
                     command.fullName().equals(request.getFullName()) &&
                     command.phoneNumber().equals(request.getPhoneNumber()) &&
                     command.organization().equals(request.getOrganization()) &&
@@ -281,7 +285,7 @@ class UserManagerServiceImplTest {
                 () -> userManagerService.setUserActiveStatus(userId, statusUpdate)
         );
 
-        assertEquals("No se puede eliminar el único administrador activo", exception.getMessage());
+        assertEquals("No se puede desactivar el único administrador activo", exception.getMessage());
 
         // Verificar que NO se llamó a setUserActiveStatus
         verify(userService, never()).setUserActiveStatus(anyLong(), anyBoolean());
@@ -512,7 +516,6 @@ class UserManagerServiceImplTest {
                 "555-1234",
                 "USAC",
                 "johndoe",
-                "password123",
                 "12345678",
                 "PARTICIPANT"
         );
@@ -526,7 +529,6 @@ class UserManagerServiceImplTest {
                     "555-1234",
                     "USAC",
                     "johndoe",
-                    "password123",
                     "12345678",
                     1L
         );

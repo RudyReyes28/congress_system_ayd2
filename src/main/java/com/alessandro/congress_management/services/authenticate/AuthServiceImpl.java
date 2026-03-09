@@ -1,18 +1,16 @@
 package com.alessandro.congress_management.services.authenticate;
 
 import com.alessandro.congress_management.dto.authenticate.*;
+import com.alessandro.congress_management.dto.user_manager.ActivateAccountRequest;
 import com.alessandro.congress_management.dto.user_manager.CreateUserCommand;
-import com.alessandro.congress_management.exceptions.DuplicatedEntityException;
-import com.alessandro.congress_management.exceptions.InvalidCredentialsException;
-import com.alessandro.congress_management.exceptions.InvalidTokenException;
+import com.alessandro.congress_management.exceptions.*;
 import com.alessandro.congress_management.models.authentication_and_users.RefreshTokenEntity;
-import com.alessandro.congress_management.models.authentication_and_users.RoleEntity;
 import com.alessandro.congress_management.models.authentication_and_users.UserEntity;
 import com.alessandro.congress_management.repositories.authenticate.RoleRepository;
 import com.alessandro.congress_management.repositories.authenticate.UserRepository;
 import com.alessandro.congress_management.security.JwtTokenProvider;
+import com.alessandro.congress_management.services.invitation.UserInvitationService;
 import com.alessandro.congress_management.services.user.UserService;
-import com.alessandro.congress_management.services.user_manager.UserManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,19 +27,21 @@ public class AuthServiceImpl implements AuthService{
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
+    private final UserInvitationService invitationService;
 
     @Autowired
     public AuthServiceImpl(
             UserRepository userRepository, RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             JwtTokenProvider jwtTokenProvider,
-            RefreshTokenService refreshTokenService, UserService userService) {
+            RefreshTokenService refreshTokenService, UserService userService, UserInvitationService invitationService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.refreshTokenService = refreshTokenService;
         this.userService = userService;
+        this.invitationService = invitationService;
     }
 
     @Override
@@ -126,6 +126,16 @@ public class AuthServiceImpl implements AuthService{
                     refreshTokenService.deleteByUser(user);
                     log.info("Usuario deslogueado: {}", username);
                 });
+    }
+
+    @Override
+    public void activateAccount(ActivateAccountRequest request)
+            throws NotFoundException, BusinessRuleException {
+        invitationService.activateAccount(
+                request.getToken(),
+                request.getNewPassword(),
+                request.getConfirmPassword()
+        );
     }
 
     private AuthResponse generateAuthResponse(UserEntity user) {

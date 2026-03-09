@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +20,9 @@ public interface CongressRepository extends JpaRepository<CongressEntity, Long> 
     List<CongressEntity> findByIsActiveTrue();
 
 
+    List<CongressEntity> findByStartDateBetweenAndInstitution_IdInstitution(LocalDate start, LocalDate end, Long idInstitution);
+
+    List<CongressEntity> findByStartDateBetween(LocalDate start, LocalDate end);
+
+    List<CongressEntity> findByInstitution_IdInstitution(Long idInstitution);
 }

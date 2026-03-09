@@ -309,4 +309,65 @@ public class EmailTemplateBuilder {
                 TEXT_MUTED
         );
     }
+
+    public String buildInvitationEmail(String fullName, String activationLink, long expiryHours) {
+        return """
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+              <meta charset="UTF-8"/>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+              <title>Activación de cuenta</title>
+              <style>
+                body { margin:0; padding:0; background:#0f1117; font-family:'Segoe UI',Arial,sans-serif; color:#e2e8f0; }
+                .wrapper { max-width:600px; margin:40px auto; background:#1a1d27; border-radius:12px; overflow:hidden; border:1px solid #2d3148; }
+                .header  { background:linear-gradient(135deg,#1e3a5f,#0d2137); padding:36px 40px; text-align:center; }
+                .header h1 { margin:0; font-size:22px; color:#f8fafc; letter-spacing:0.5px; }
+                .header p  { margin:6px 0 0; font-size:13px; color:#94a3b8; }
+                .body    { padding:36px 40px; }
+                .greeting { font-size:16px; color:#f1f5f9; margin-bottom:16px; }
+                .message  { font-size:14px; color:#94a3b8; line-height:1.7; margin-bottom:28px; }
+                .btn-wrap { text-align:center; margin-bottom:28px; }
+                .btn { display:inline-block; padding:14px 36px; background:linear-gradient(135deg,#2563eb,#1d4ed8);
+                       color:#fff; text-decoration:none; border-radius:8px; font-size:15px; font-weight:600;
+                       letter-spacing:0.3px; }
+                .expiry { background:#1e2235; border:1px solid #2d3148; border-radius:8px;
+                          padding:12px 16px; font-size:13px; color:#94a3b8; text-align:center; margin-bottom:24px; }
+                .expiry span { color:#f59e0b; font-weight:600; }
+                .fallback { font-size:12px; color:#64748b; word-break:break-all; text-align:center; }
+                .footer  { background:#13151f; padding:20px 40px; text-align:center; font-size:12px; color:#475569; }
+              </style>
+            </head>
+            <body>
+              <div class="wrapper">
+                <div class="header">
+                  <h1>Sistema de Gestión de Congresos</h1>
+                  <p>Bienvenido/a a la plataforma</p>
+                </div>
+                <div class="body">
+                  <p class="greeting">Hola, <strong>%s</strong></p>
+                  <p class="message">
+                    Has sido registrado/a en el Sistema de Gestión de Congresos.<br/>
+                    Para completar tu registro y activar tu cuenta, haz clic en el siguiente botón
+                    y elige tu contraseña.
+                  </p>
+                  <div class="btn-wrap">
+                    <a class="btn" href="%s">Activar mi cuenta</a>
+                  </div>
+                  <div class="expiry">
+                    Este enlace expirará en <span>%d horas</span>. Si no lo usas a tiempo,
+                    solicita uno nuevo al administrador.
+                  </div>
+                  <p class="fallback">
+                    Si el botón no funciona, copia y pega este enlace en tu navegador:<br/>%s
+                  </p>
+                </div>
+                <div class="footer">
+                  Si no esperabas este correo, puedes ignorarlo con seguridad.
+                </div>
+              </div>
+            </body>
+            </html>
+            """.formatted(fullName, activationLink, expiryHours, activationLink);
+    }
 }
