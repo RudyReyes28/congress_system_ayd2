@@ -201,7 +201,7 @@ class CongressServiceImplTest {
     void testUpdateCongress_success() throws Exception {
         // Arrange
         Long congressId = 1L;
-        UpdateCongressRequest request = createUpdateRequest();
+        UpdateCongressRequest request = createUpdateRequest(LocalDate.of(2026,5, 15), LocalDate.of(2026,5,18));
         CongressEntity existingCongress = createCongress(congressId, "Old Name", true);
 
         when(congressRepository.existsByCongressNameAndIdCongressNot("Updated Congress", congressId))
@@ -253,7 +253,7 @@ class CongressServiceImplTest {
     void testUpdateCongress_whenNameExists_shouldThrowException() {
         // Arrange
         Long congressId = 1L;
-        UpdateCongressRequest request = createUpdateRequest();
+        UpdateCongressRequest request = createUpdateRequest(LocalDate.of(2026,5, 15), LocalDate.of(2026,5,18));
 
         when(congressRepository.existsByCongressNameAndIdCongressNot("Updated Congress", congressId))
                 .thenReturn(true);
@@ -272,7 +272,7 @@ class CongressServiceImplTest {
     void testUpdateCongress_whenCongressNotFound_shouldThrowException() {
         // Arrange
         Long congressId = 999L;
-        UpdateCongressRequest request = createUpdateRequest();
+        UpdateCongressRequest request = createUpdateRequest(LocalDate.of(2026,5, 15), LocalDate.of(2026,5,18));
 
         when(congressRepository.existsByCongressNameAndIdCongressNot(anyString(), eq(congressId)))
                 .thenReturn(false);
@@ -291,7 +291,7 @@ class CongressServiceImplTest {
     void testUpdateCongress_whenPriceChangedWithRegistrations_shouldThrowException() throws NotFoundException {
         // Arrange
         Long congressId = 1L;
-        UpdateCongressRequest request = createUpdateRequest(); // Price: 200.00
+        UpdateCongressRequest request = createUpdateRequest(LocalDate.of(2026,5, 15), LocalDate.of(2026,5,18)); // Price: 200.00
         CongressEntity existingCongress = createCongress(congressId, "Congress", true);
         existingCongress.setPrice(new BigDecimal("150.00")); // Precio diferente
 
@@ -307,6 +307,29 @@ class CongressServiceImplTest {
         );
 
         assertEquals("Cannot change the price of the congress because there are already registrations",
+                exception.getMessage());
+        verify(congressRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdateCongress_whenStartDateChangedToFutureAfterCongressStarted_shouldThrowException() throws NotFoundException {
+        // Arrange
+        Long congressId = 1L;
+        UpdateCongressRequest request = createUpdateRequest(LocalDate.of(2026,6, 1), LocalDate.of(2026,6, 3)); // Start date en el futuro
+        CongressEntity existingCongress = createCongress(congressId, "Congress", true);
+        existingCongress.setStartDate(LocalDate.of(2026,5, 1)); // Congreso ya inició
+
+        when(congressRepository.existsByCongressNameAndIdCongressNot(anyString(), eq(congressId)))
+                .thenReturn(false);
+        when(congressRepository.findById(congressId)).thenReturn(Optional.of(existingCongress));
+
+        // Act & Assert
+        BusinessRuleException exception = assertThrows(
+                BusinessRuleException.class,
+                () -> congressService.updateCongress(congressId, request)
+        );
+
+        assertEquals("The start date cannot be changed to a future date if the congress has already started",
                 exception.getMessage());
         verify(congressRepository, never()).save(any());
     }
@@ -511,12 +534,12 @@ class CongressServiceImplTest {
         );
     }
 
-    private UpdateCongressRequest createUpdateRequest() {
+    private UpdateCongressRequest createUpdateRequest(LocalDate startDate, LocalDate endDate) {
         return new UpdateCongressRequest(
                 "Updated Congress",
                 "Updated description",
-                LocalDate.of(2026, 6, 1),
-                LocalDate.of(2026, 6, 5),
+                startDate,
+                endDate,
                 "New Location",
                 new BigDecimal("200.00")
         );

@@ -17,7 +17,6 @@ public class UpdateCongressRequest {
     String description;
 
     @NotNull(message = "Start date cannot be null")
-    @FutureOrPresent(message = "Start date must be in the present or future")
     LocalDate startDate;
 
     @NotNull(message = "End date cannot be null")

@@ -78,6 +78,12 @@ public class CongressServiceImpl implements CongressService{
         }
 
         CongressEntity congress = findCongressEntityById(idCongress);
+
+        //La fecha de inicio no puede ser posterior a la fecha de inicio del congreso actual
+        if (congress.getStartDate().isBefore(request.getStartDate())) {
+            throw new BusinessRuleException("The start date cannot be changed to a future date if the congress has already started");
+        }
+
         //Validar precios si hay inscripciones
         if (request.getPrice().compareTo(congress.getPrice()) != 0 &&
                 registrationRepository.existsByCongress_IdCongress(idCongress)) {
