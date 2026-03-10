@@ -1,0 +1,30 @@
+services:
+  backend-dev:
+    image: congress-backend-dev:latest
+    container_name: congress-backend-dev
+    restart: unless-stopped
+    env_file:
+      - .env.dev
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    expose:
+      - '8082'
+    networks:
+      - congress-dev-net
+
+  nginx-dev:
+    image: nginx:alpine
+    container_name: congress-nginx-dev
+    restart: unless-stopped
+    ports:
+      - '8090:80'
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend-dev
+    networks:
+      - congress-dev-net
+
+networks:
+  congress-dev-net:
+    driver: bridge

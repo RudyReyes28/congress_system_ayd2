@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'congress-backend-dev'
+        DEPLOY_DIR = '/opt/congress-backend-dev'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test -B'
+            }
+            post {
+                always {
+                    script {
+                        if (fileExists('target/surefire-reports')) {
+                            junit 'target/surefire-reports/*.xml'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$BUILD_NUMBER .'
+            }
+        }
+
+        stage('Deploy DEV') {
+            steps {
+                sh '''
+                    cp docker-compose.dev.yml $DEPLOY_DIR/docker-compose.dev.yml
+                    cp nginx.dev.conf         $DEPLOY_DIR/nginx.dev.conf
+                    cd $DEPLOY_DIR
+                    docker compose -f docker-compose.dev.yml up -d --no-deps backend-dev
+                    docker compose -f docker-compose.dev.yml up -d --no-deps nginx-dev
+                    docker image prune -f
+                '''
+            }
+        }
+    }
+
+    post {
+        failure { echo 'Pipeline DEV falló' }
+        success { echo 'Backend DEV desplegado exitosamente' }
+    }
+}
