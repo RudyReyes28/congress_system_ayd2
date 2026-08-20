@@ -14,12 +14,11 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'mvn test -B'
+                sh 'mvn clean test -B'
             }
             post {
                 always {
-                    junit testResults: 'target/surefire-reports/*.xml',
-                          skipPublishingChecks: true
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
