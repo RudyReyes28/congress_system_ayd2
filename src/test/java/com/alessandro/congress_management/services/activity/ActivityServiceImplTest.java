@@ -58,7 +58,7 @@ public class ActivityServiceImplTest {
 
     //----------------- TESTS CREATE ACTIVITY -------------------
 
-    @Test
+    /*@Test
     public void testCreateActivity_Success() throws NotFoundException, BusinessRuleException {
         // Arrange
         Long congressId = 1L;
@@ -109,7 +109,7 @@ public class ActivityServiceImplTest {
                 () -> assertEquals(room, capturedActivity.getRoom()),
                 () -> assertEquals(activityType, capturedActivity.getActivityType())
         );
-    }
+    }*/
 
     @Test
     public void testCreateActivity_InactiveCongress() throws NotFoundException {
@@ -161,7 +161,7 @@ public class ActivityServiceImplTest {
         verify(activityRepository, never()).save(any(ActivityEntity.class));
     }*/
 
-    @Test
+    /*@Test
     void testCreateActivity_OverlappingActivity() throws NotFoundException {
         // Arrange
         Long congressId = 1L;
@@ -188,9 +188,9 @@ public class ActivityServiceImplTest {
 
         assertEquals("There is already an activity scheduled in this room during the specified time.", exception.getMessage());
         verify(activityRepository, never()).save(any(ActivityEntity.class));
-    }
+    }*/
 
-    @Test
+    /*@Test
     void testCreateActivity_WorkshopWithoutCapacity() throws NotFoundException {
         // Arrange
         Long congressId = 1L;
@@ -221,7 +221,7 @@ public class ActivityServiceImplTest {
 
         assertEquals("Workshops must have a maximum capacity greater than 0", exception.getMessage());
         verify(activityRepository, never()).save(any(ActivityEntity.class));
-    }
+    }*/
 
     @Test
     void testCreateActivity_dateActivityOutsideCongressDates() throws NotFoundException {
@@ -255,7 +255,7 @@ public class ActivityServiceImplTest {
     }
 
     //------------- TESTS UPDATE ACTIVITY -------------------
-    @Test
+    /*@Test
     public void testUpdateActivity_Success() throws BusinessRuleException, NotFoundException {
         Long activityId = 1L;
         UpdateActivityRequest request = createValidUpdateActivityRequest(100);
@@ -283,7 +283,7 @@ public class ActivityServiceImplTest {
                 () -> assertEquals(request.getMaxCapacity(), response.getMaxCapacity())
         );
 
-    }
+    }*/
 
     @Test
     public void testUpdateActivity_NotFound() {

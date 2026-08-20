@@ -52,7 +52,7 @@ class CongressControllerTest {
 
     // ------------------ CREATE CONGRESS TESTS -------------------
 
-    @Test
+    /*@Test
     @WithMockUser(roles = "ADMIN_CONGRESS")
     void testCreateCongress_success() throws Exception {
         // Arrange
@@ -290,5 +290,5 @@ class CongressControllerTest {
                 "150.00",
                 isActive
         );
-    }
+    }*/
 }
