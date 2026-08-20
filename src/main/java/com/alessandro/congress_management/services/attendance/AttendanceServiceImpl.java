@@ -102,6 +102,9 @@ public class AttendanceServiceImpl implements AttendanceService{
         AttendanceEntity attendance = buildAttendance(activity, user, getParticipationTypeByName(PARTICIPATION_TYPE_ASISTENTE), adminUser);
         attendanceRepository.save(attendance);
         return AttendanceResponse.fromEntity(attendance);
+
+
+        //REALIZANDO PRUEBA DE DEPLOY
     }
 
 
