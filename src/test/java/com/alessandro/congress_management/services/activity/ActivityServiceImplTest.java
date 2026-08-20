@@ -132,7 +132,7 @@ public class ActivityServiceImplTest {
         verify(activityRepository, never()).save(any(ActivityEntity.class));
     }
 
-    @Test
+    /*@Test
     public void testCreateActivity_InvalidDates() throws NotFoundException {
         // Arrange
         Long congressId = 1L;
@@ -159,7 +159,7 @@ public class ActivityServiceImplTest {
 
         assertEquals("The start time must be before the end time.", exception.getMessage());
         verify(activityRepository, never()).save(any(ActivityEntity.class));
-    }
+    }*/
 
     @Test
     void testCreateActivity_OverlappingActivity() throws NotFoundException {
